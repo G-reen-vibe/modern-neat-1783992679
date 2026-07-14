@@ -57,6 +57,7 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
     best_g = max(algo_inst.pop, key=lambda g: g.fitness)
     final_evals = [eval_genome(best_g, env_name, s)
                    for s in range(10000, 10000 + eval_seeds_final)]
+    print(f"    [seed {seed}] final eval done")
     return {
         'seed': seed,
         'history': history,
