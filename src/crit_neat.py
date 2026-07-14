@@ -72,6 +72,9 @@ class CRITConfig:
     use_robust_fitness: bool = True  # use 0.5*mean + 0.5*min for fitness (favors consistency)
     use_genetic_sharing: bool = False  # ablation: hurts because punishes structural growth
     genetic_sharing_weight: float = 0.3  # weight on genetic component (0-1)
+    use_stagnation_injection: bool = True  # inject diversity when population stagnates
+    stagnation_patience: int = 5  # generations without improvement before injection
+    stagnation_inject_frac: float = 0.2  # fraction of pop to replace
     # Behavioral speciation
     n_probe_states: int = 50
     behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
@@ -121,6 +124,9 @@ class CRITNEAT:
         self.archive: List[np.ndarray] = []
         # Probe state set (resampled each generation)
         self.probe_states: Optional[np.ndarray] = None
+        # Stagnation tracking
+        self._best_ever_fitness: float = -1e9
+        self._stagnation_count: int = 0
         self._init_pop(birth_gen)
 
     # ------------------------------------------------------------------
@@ -516,6 +522,43 @@ class CRITNEAT:
                 all_states_per_genome.append(np.array(g_states))
         finally:
             env.close()
+        # 2c) Stagnation detection
+        current_best = max(g.fitness for g in self.pop)
+        if current_best > self._best_ever_fitness + 1e-6:
+            self._best_ever_fitness = current_best
+            self._stagnation_count = 0
+        else:
+            self._stagnation_count += 1
+        stagnated = (self.cfg.use_stagnation_injection
+                     and self._stagnation_count >= self.cfg.stagnation_patience
+                     and self.gen > 3)
+        if stagnated:
+            # Inject diversity: replace bottom X% with mutated copies of top performers
+            # PLUS large-weight mutations to encourage exploration
+            sorted_idx = sorted(range(len(self.pop)),
+                                key=lambda i: self.pop[i].fitness)
+            n_inject = max(1, int(self.cfg.stagnation_inject_frac * len(self.pop)))
+            bottom = sorted_idx[:n_inject]
+            top = sorted_idx[-n_inject:]
+            for bi, ti in zip(bottom, top):
+                # Reset bottom genome to a heavily-mutated copy of a top genome
+                new_g = self.pop[ti].copy()
+                # Heavy mutation: large weight perturbation + structural mutations
+                for c in new_g.conns.values():
+                    if random.random() < 0.5:
+                        c.weight += float(np.random.randn() * 2.0)  # large perturbation
+                # Force structural mutation
+                if new_g.conns and new_g.num_hidden() < self.cfg.max_hidden:
+                    enabled_cids = [cid for cid, c in new_g.conns.items() if c.enabled]
+                    if enabled_cids:
+                        cid_to_split = random.choice(enabled_cids)
+                        new_nid = self.innov.node_id_for_split(cid_to_split)
+                        new_g.add_hidden_node(new_nid, cid_to_split, self.gen)
+                # Try add connection
+                for _ in range(3):
+                    self._try_add_conn(new_g)
+                self.pop[bi] = new_g
+            self._stagnation_count = 0  # reset after injection
         # 2b) Update mutation success windows: a mutation was "successful"
         # if the genome's fitness exceeded its parent's fitness.
         if self.cfg.use_adaptive_rates and self.gen > 0:
