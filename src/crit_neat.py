@@ -66,6 +66,7 @@ class CRITConfig:
     use_novelty_bonus: bool = True
     use_adaptive_threshold: bool = True  # data-driven behavioral threshold
     use_structural_novelty_bias: bool = True  # bias growth toward un-split connections
+    use_soft_sharing: bool = True  # soft behavioral fitness sharing (vs hard clustering)
     # Behavioral speciation
     n_probe_states: int = 50
     behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
@@ -509,6 +510,32 @@ class CRITNEAT:
             g.adjusted_fitness = g.fitness + nf
         # 5) Update archive
         self._update_archive(sigs)
+        # 5b) Soft behavioral fitness sharing: divide each genome's adjusted
+        # fitness by the sum of its behavioral similarities to others.
+        # This is like NEAT's explicit fitness sharing but in BEHAVIOR space
+        # and SOFT (no hard clusters).
+        if self.cfg.use_soft_sharing and self.cfg.use_behavioral_spec:
+            # Compute pairwise behavioral distances (cap at 60 genomes for speed)
+            n = len(self.pop)
+            sample_idx = list(range(n)) if n <= 60 else random.sample(range(n), 60)
+            shares = [0.0] * n
+            for ii, i in enumerate(sample_idx):
+                for jj in range(ii+1, len(sample_idx)):
+                    j = sample_idx[jj]
+                    d = self._behavioral_distance(sigs[i], sigs[j])
+                    # Sharing function: 1 if d=0, 0 if d > threshold; linear in between
+                    # Use adaptive threshold
+                    thresh = self.cfg.behavioral_threshold
+                    # Use 1.0 / (1 + d) as soft sharing — bounded, no threshold needed
+                    s = 1.0 / (1.0 + d * 5.0)  # scale so d=0.2 → share=0.5
+                    shares[i] += s
+                    shares[j] += s
+                shares[i] += 1.0  # self
+            for i in range(n):
+                if i not in sample_idx:
+                    shares[i] = 1.0  # fallback: no sharing computed
+                # Divide adjusted fitness by share count (with floor to avoid div-by-zero)
+                self.pop[i].adjusted_fitness = self.pop[i].adjusted_fitness / max(shares[i], 0.5)
         # 6) Speciate / cluster
         if self.cfg.use_behavioral_spec:
             clusters = self._behavioral_speciate(sigs)
