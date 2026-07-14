@@ -646,11 +646,15 @@ class CRITNEAT:
         new_rates: List[float] = []
         new_windows: List[List[bool]] = []
         new_parent_fits: List[float] = []
-        # Sort population by combined fitness
+        # Sort population by combined fitness (for parent selection)
         order = sorted(range(len(self.pop)),
                        key=lambda i: self.pop[i].adjusted_fitness, reverse=True)
-        # Global elites (carry over unchanged)
-        for i in order[:self.cfg.elitism]:
+        # Global elites (carry over unchanged) — selected by RAW fitness
+        # to ensure we never lose the best-performing genome due to novelty
+        # bonus or sharing adjustments.
+        elite_order = sorted(range(len(self.pop)),
+                             key=lambda i: self.pop[i].fitness, reverse=True)
+        for i in elite_order[:self.cfg.elitism]:
             new_pop.append(self.pop[i].copy())
             # Elites: adapt their mut_rate based on their own success window
             r = self.mut_rates[i]
