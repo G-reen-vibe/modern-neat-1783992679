@@ -64,15 +64,26 @@ class CRITConfig:
     use_functional_pruning: bool = True
     use_adaptive_rates: bool = True
     use_novelty_bonus: bool = True
+    use_adaptive_threshold: bool = True  # data-driven behavioral threshold
+    use_structural_novelty_bias: bool = True  # bias growth toward un-split connections
     # Behavioral speciation
     n_probe_states: int = 50
-    behavioral_threshold: float = 0.5  # max avg KL/L2 for "same niche"
+    behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
+    adaptive_threshold_percentile: float = 0.25  # threshold = 25th pct of pairwise dists
+    # Trajectory signature (replaces per-state signature for RL)
+    use_trajectory_sig: bool = True  # use trajectory-based behavioral signature
+    traj_n_bins: int = 8  # bins per state dim for trajectory signature
+    traj_max_steps: int = 200  # cap rollout length for signature
     # Functional pruning
     silent_node_var: float = 0.01
+    prune_min_hidden: int = 4  # only prune when genome has >= this many hidden nodes
     # Novelty
     novelty_k: int = 5
-    novelty_coef: float = 0.05
+    novelty_coef: float = 0.10  # increased from 0.05
+    novelty_decay: float = 0.99  # decay per generation
+    novelty_coef_min: float = 0.01
     archive_size: int = 200
+    archive_add_percentile: float = 0.5  # add if farther than median archive distance
     # Selection
     elitism: int = 2
     survival_threshold: float = 0.30
@@ -120,7 +131,9 @@ class CRITNEAT:
                     g.conns[cid] = ConnGene(cid, in_id, out_id, w, True, birth_gen)
             self.pop.append(g)
             self.mut_rates.append(self.cfg.init_mut_rate)
-            self.mut_success_window.append([])
+            # Seed success window with random booleans to break cold-start symmetry
+            # This is NOT a hack — it's a reasonable prior: ~20% success rate.
+            self.mut_success_window.append([random.random() < 0.2 for _ in range(5)])
         self._parent_fits = [0.0] * self.cfg.pop_size
 
     # ------------------------------------------------------------------
@@ -150,16 +163,21 @@ class CRITNEAT:
         finally:
             env.close()
 
-    def _behavioral_signature(self, g: Genome) -> np.ndarray:
-        """Compute action signature on probe states.
-        For discrete env: softmax(output) for each probe state, flattened.
-        For continuous env: raw output for each probe state, flattened.
+    def _behavioral_signature(self, g: Genome, env_name: str = None,
+                              eval_seed: int = 0) -> np.ndarray:
+        """Compute behavioral signature.
+        If use_trajectory_sig: rollout a short trajectory and bin the states
+            visited (this captures episode-level behavior, not just per-state
+            action choices — important for RL where two policies can agree on
+            every individual state but produce very different trajectories).
+        Otherwise: per-state action distribution on probe states.
         """
+        if self.cfg.use_trajectory_sig and env_name is not None:
+            return self._trajectory_signature(g, env_name, eval_seed)
         sigs = []
         for obs in self.probe_states:
             out = g.forward(list(obs))
             if self.discrete:
-                # Softmax with temperature
                 o = np.array(out)
                 o = o - np.max(o)
                 e = np.exp(o)
@@ -169,13 +187,78 @@ class CRITNEAT:
                 sigs.append(np.array(out, dtype=np.float32))
         return np.concatenate(sigs)
 
+    def _trajectory_signature(self, g: Genome, env_name: str,
+                              eval_seed: int) -> np.ndarray:
+        """Roll out the genome and produce a histogram of visited states.
+        Each state dimension is binned independently; the signature is the
+        concatenation of normalized histograms. This captures the *distribution*
+        of states the policy visits, which is a true behavioral fingerprint.
+        """
+        info = get_env_info(env_name)
+        env = gym.make(env_name)
+        try:
+            obs, _ = env.reset(seed=eval_seed)
+            states = [np.asarray(obs, dtype=np.float32)]
+            for _ in range(self.cfg.traj_max_steps):
+                out = g.forward(list(obs))
+                if info['discrete']:
+                    action = int(np.argmax(out))
+                else:
+                    action = np.array(out, dtype=np.float32)
+                    if hasattr(env.action_space, 'low'):
+                        action = np.clip(action, env.action_space.low, env.action_space.high)
+                obs, r, term, trunc, _ = env.step(action)
+                states.append(np.asarray(obs, dtype=np.float32))
+                if term or trunc:
+                    break
+            states = np.array(states)  # (T, D)
+            # Compute per-dimension histograms
+            n_bins = self.cfg.traj_n_bins
+            D = states.shape[1]
+            sig_parts = []
+            # Use env observation bounds for binning
+            obs_low = env.observation_space.low
+            obs_high = env.observation_space.high
+            for d in range(D):
+                lo = obs_low[d] if np.isfinite(obs_low[d]) else float(states[:, d].min())
+                hi = obs_high[d] if np.isfinite(obs_high[d]) else float(states[:, d].max())
+                if hi <= lo:
+                    hi = lo + 1.0
+                # Clip and bin
+                clipped = np.clip(states[:, d], lo, hi)
+                bins = np.linspace(lo, hi, n_bins + 1)
+                hist, _ = np.histogram(clipped, bins=bins)
+                # Normalize to distribution
+                hist = hist.astype(np.float32) / max(hist.sum(), 1)
+                sig_parts.append(hist)
+            return np.concatenate(sig_parts)
+        finally:
+            env.close()
+
     def _behavioral_distance(self, s1: np.ndarray, s2: np.ndarray) -> float:
         """Distance between two behavioral signatures.
-        For discrete: avg KL divergence across probe states.
-        For continuous: normalized L2.
+        Uses Jensen-Shannon divergence (symmetric, bounded) of the histogram
+        representations. Works for both trajectory and per-state signatures.
         """
+        # If trajectory sig: treat as a probability distribution
+        # (each dim block sums to 1; we average JS divergence across blocks)
+        if self.cfg.use_trajectory_sig:
+            n_bins = self.cfg.traj_n_bins
+            D = len(s1) // n_bins
+            js_divs = []
+            for d in range(D):
+                p = s1[d*n_bins:(d+1)*n_bins] + 1e-12
+                q = s2[d*n_bins:(d+1)*n_bins] + 1e-12
+                p = p / p.sum()
+                q = q / q.sum()
+                m = 0.5 * (p + q)
+                # JS = 0.5 * KL(p||m) + 0.5 * KL(q||m)
+                kl_pm = np.sum(p * np.log(p / m))
+                kl_qm = np.sum(q * np.log(q / m))
+                js_divs.append(0.5 * (kl_pm + kl_qm))
+            return float(np.mean(js_divs))
+        # Per-state signature: use KL or L2 as before
         if self.discrete:
-            # Reshape to (n_probe, n_actions)
             n_probe = self.cfg.n_probe_states
             p = s1.reshape(n_probe, self.num_outputs) + 1e-9
             q = s2.reshape(n_probe, self.num_outputs) + 1e-9
@@ -266,13 +349,31 @@ class CRITNEAT:
         Greedy: each genome joins the first cluster whose representative
         is within behavioral_threshold.
         """
+        # Compute adaptive threshold from pairwise distances if enabled
+        if self.cfg.use_adaptive_threshold and len(sigs) >= 4:
+            # Sample pairwise distances (cap to 100 pairs for speed)
+            n = len(sigs)
+            idxs = list(range(n))
+            random.shuffle(idxs)
+            sample = idxs[:min(n, 20)]
+            dists = []
+            for i in range(len(sample)):
+                for j in range(i+1, len(sample)):
+                    dists.append(self._behavioral_distance(sigs[sample[i]], sigs[sample[j]]))
+            if dists:
+                threshold = float(np.percentile(dists, self.cfg.adaptive_threshold_percentile * 100))
+                threshold = max(threshold, 1e-3)
+            else:
+                threshold = self.cfg.behavioral_threshold
+        else:
+            threshold = self.cfg.behavioral_threshold
         clusters: List[List[int]] = []
         reps: List[int] = []
         for i, sig in enumerate(sigs):
             placed = False
             for ci, ridx in enumerate(reps):
                 d = self._behavioral_distance(sig, sigs[ridx])
-                if d < self.cfg.behavioral_threshold:
+                if d < threshold:
                     clusters[ci].append(i)
                     placed = True
                     break
@@ -295,15 +396,24 @@ class CRITNEAT:
     def _update_archive(self, sigs: List[np.ndarray]) -> None:
         if not self.cfg.use_novelty_bonus:
             return
+        # Compute archive distance threshold (data-driven)
+        if self.archive and len(self.archive) >= 5:
+            # Sample distances from existing archive members
+            sample_a = random.sample(self.archive, min(len(self.archive), 10))
+            internal = []
+            for i in range(len(sample_a)):
+                for j in range(i+1, len(sample_a)):
+                    internal.append(self._behavioral_distance(sample_a[i], sample_a[j]))
+            thresh = float(np.percentile(internal, self.cfg.archive_add_percentile * 100)) if internal else self.cfg.behavioral_threshold
+        else:
+            thresh = 0.0
         for sig in sigs:
-            # Add if sufficiently different from archive
             if not self.archive:
                 self.archive.append(sig.copy())
                 continue
             dists = [self._behavioral_distance(sig, a) for a in self.archive]
-            if min(dists) > self.cfg.behavioral_threshold * 0.5:
+            if min(dists) > thresh:
                 self.archive.append(sig.copy())
-        # Cap archive size: drop oldest
         if len(self.archive) > self.cfg.archive_size:
             self.archive = self.archive[-self.cfg.archive_size:]
 
@@ -329,14 +439,20 @@ class CRITNEAT:
                     if len(self.mut_success_window[i]) > 5:
                         self.mut_success_window[i] = self.mut_success_window[i][-5:]
         # 3) Compute behavioral signatures
-        sigs = [self._behavioral_signature(g) for g in self.pop]
+        # Use a fixed seed per generation for trajectory sigs (so sigs are
+        # comparable within a generation but vary across generations).
+        sig_seed = self.gen * 1000 + 4242
+        sigs = [self._behavioral_signature(g, env_name, sig_seed) for g in self.pop]
         # 4) Compute novelty bonus
         novelties = [self._novelty(s) for s in sigs]
         info = get_env_info(env_name)
         reward_range = info['r_max'] - info['r_min']
         # Combined fitness
+        # Use current effective novelty coef (decayed over generations)
+        eff_novelty_coef = max(self.cfg.novelty_coef_min,
+                               self.cfg.novelty_coef * (self.cfg.novelty_decay ** self.gen))
         for i, g in enumerate(self.pop):
-            nf = self.cfg.novelty_coef * reward_range * novelties[i] if self.cfg.use_novelty_bonus else 0.0
+            nf = eff_novelty_coef * reward_range * novelties[i] if self.cfg.use_novelty_bonus else 0.0
             g.adjusted_fitness = g.fitness + nf
         # 5) Update archive
         self._update_archive(sigs)
@@ -345,9 +461,11 @@ class CRITNEAT:
             clusters = self._behavioral_speciate(sigs)
         else:
             clusters = [list(range(len(self.pop)))]  # single cluster
-        # 7) Functional pruning
+        # 7) Functional pruning (only when genome is non-trivial)
         if self.cfg.use_functional_pruning:
             for g in self.pop:
+                if g.num_hidden() < self.cfg.prune_min_hidden:
+                    continue
                 var = self._node_activation_variance(g)
                 for nid, v in var.items():
                     if v < self.cfg.silent_node_var:
@@ -451,6 +569,7 @@ class CRITNEAT:
             'max_complexity': int(max_complexity),
             'archive_size': len(self.archive),
             'avg_mut_rate': float(np.mean(self.mut_rates)) if self.mut_rates else 0.0,
+            'eff_novelty_coef': float(eff_novelty_coef) if self.cfg.use_novelty_bonus else 0.0,
         }
         self.history.append(stats)
         return stats
@@ -469,13 +588,27 @@ class CRITNEAT:
                 if cfg.use_criticality_growth:
                     crits = self._conn_criticality(g)
                     if crits:
-                        # Pick top-k most critical, weighted random
-                        sorted_cids = sorted(crits.items(), key=lambda x: x[1], reverse=True)
-                        top = sorted_cids[:max(1, len(sorted_cids)//3)]
-                        cids = [c for c, _ in top]
-                        weights = np.array([max(crits[c], 1e-6) for c in cids])
+                        # Combine criticality with structural novelty:
+                        # bias away from recently-split connections.
+                        # Encode each cid by its (in_node, out_node) and check
+                        # if either endpoint is a hidden node that already exists
+                        # (i.e., has been split before).
+                        cid_list = list(crits.keys())
+                        weights = np.array([max(crits[c], 1e-6) for c in cid_list])
+                        if cfg.use_structural_novelty_bias:
+                            # Penalize cids whose in_node or out_node is a hidden node
+                            # (these have been split before); prefer input->hidden or hidden->output
+                            for k, c in enumerate(cid_list):
+                                conn = g.conns[c]
+                                in_kind = g.nodes[conn.in_node].kind
+                                out_kind = g.nodes[conn.out_node].kind
+                                # If both endpoints are input/output, this is a "fresh" split
+                                if in_kind == 'input' and out_kind == 'output':
+                                    weights[k] *= 1.5
+                                elif in_kind == 'hidden' or out_kind == 'hidden':
+                                    weights[k] *= 0.5
                         weights = weights / weights.sum()
-                        cid_to_split = np.random.choice(cids, p=weights)
+                        cid_to_split = np.random.choice(cid_list, p=weights)
                     else:
                         cid_to_split = random.choice(enabled_cids)
                 else:
