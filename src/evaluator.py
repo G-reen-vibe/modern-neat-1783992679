@@ -22,7 +22,7 @@ _ENV_INFO = {
     'CartPole-v0':       {'max_steps': 200,  'r_min': 0.0, 'r_max': 200.0, 'discrete': True},
     'MountainCar-v0':    {'max_steps': 200,  'r_min': -200.0, 'r_max': 0.0, 'discrete': True},
     'Acrobot-v1':        {'max_steps': 500,  'r_min': -500.0, 'r_max': 0.0, 'discrete': True},
-    'LunarLander-v2':    {'max_steps': 1000, 'r_min': -300.0, 'r_max': 300.0, 'discrete': True},
+    'LunarLander-v3':    {'max_steps': 1000, 'r_min': -300.0, 'r_max': 300.0, 'discrete': True},
 }
 
 

@@ -28,7 +28,7 @@ _SOLVE_THRESHOLDS = {
     'CartPole-v0': 195.0,
     'MountainCar-v0': -110.0,  # >=-110 (max is 0)
     'Acrobot-v1': -100.0,      # >=-100 (max is 0)
-    'LunarLander-v2': 200.0,
+    'LunarLander-v3': 200.0,
 }
 
 
