@@ -91,15 +91,18 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
                   f"cx={stats['avg_complexity']:.1f}")
     elapsed = time.time() - t0
     # Final selection: combine best-ever + top-K by current fitness
+    # + elite archive (if available, e.g., in CRIT or TIDE)
     candidates = []
     if best_ever_genome is not None:
         candidates.append(best_ever_genome)
-    # For TIDE-NEAT, use grid genomes; otherwise use pop
+    # Add elite archive genomes (CRIT) or grid genomes (TIDE)
+    if hasattr(algo_inst, 'elite_archive') and algo_inst.elite_archive:
+        archive_g = [g for g, _ in algo_inst.elite_archive.values()]
+        candidates.extend(archive_g)
     if hasattr(algo_inst, 'grid') and algo_inst.grid:
         grid_g = [g for cell in algo_inst.grid.values() for g in cell]
         candidates.extend(sorted(grid_g, key=lambda g: g.fitness, reverse=True)[:10])
-    else:
-        candidates.extend(sorted(algo_inst.pop, key=lambda g: g.fitness, reverse=True)[:10])
+    candidates.extend(sorted(algo_inst.pop, key=lambda g: g.fitness, reverse=True)[:10])
     # Deduplicate by identity (best_ever may already be in pop)
     seen = set()
     unique_candidates = []

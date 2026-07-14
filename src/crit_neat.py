@@ -75,6 +75,8 @@ class CRITConfig:
     use_stagnation_injection: bool = True  # inject diversity when population stagnates
     stagnation_patience: int = 5  # generations without improvement before injection
     stagnation_inject_frac: float = 0.2  # fraction of pop to replace
+    use_elite_archive: bool = True  # persistent archive of best-per-cell genomes
+    archive_grid_bins: int = 5  # bins per dim for archive grid (5x5 = 25 cells)
     # Behavioral speciation
     n_probe_states: int = 50
     behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
@@ -127,6 +129,9 @@ class CRITNEAT:
         # Stagnation tracking
         self._best_ever_fitness: float = -1e9
         self._stagnation_count: int = 0
+        # Persistent elite archive: dict (bin_x, bin_y) -> (genome, fitness)
+        self.elite_archive: Dict[Tuple[int, int], Tuple[Genome, float]] = {}
+        self._archive_edges = None  # bin edges for archive grid
         self._init_pop(birth_gen)
 
     # ------------------------------------------------------------------
@@ -471,6 +476,67 @@ class CRITNEAT:
         if len(self.archive) > self.cfg.archive_size:
             self.archive = self.archive[-self.cfg.archive_size:]
 
+    def _update_elite_archive(self, sigs: List[np.ndarray]) -> None:
+        """Update persistent elite archive (best-per-cell across all generations).
+        Uses PCA projection of trajectory signatures to 2D, then bins into a grid.
+        Each cell keeps the fittest genome ever observed there.
+        """
+        from sklearn.decomposition import PCA
+        n_bins = self.cfg.archive_grid_bins
+        # Need at least 4 sigs and dim > 2 for PCA
+        if len(sigs) < 4 or sigs[0].shape[0] <= 2:
+            return
+        try:
+            sigs_arr = np.array(sigs)
+            sigs_noisy = sigs_arr + np.random.randn(*sigs_arr.shape) * 1e-6
+            # If we have existing archive, include their sigs for stable PCA
+            if self.elite_archive:
+                existing_sigs = []
+                for _, (g, _) in [(c, v) for c, v in self.elite_archive.items()]:
+                    if hasattr(g, '_last_archive_sig'):
+                        existing_sigs.append(g._last_archive_sig)
+                if existing_sigs:
+                    all_sigs = np.vstack([sigs_noisy, np.array(existing_sigs)])
+                else:
+                    all_sigs = sigs_noisy
+            else:
+                all_sigs = sigs_noisy
+            pca = PCA(n_components=2)
+            pca.fit(all_sigs)
+            projected = pca.transform(sigs_arr)
+        except Exception:
+            return
+        # Compute or reuse bin edges
+        if self._archive_edges is None:
+            edges = []
+            for d in range(2):
+                lo = float(np.percentile(projected[:, d], 2))
+                hi = float(np.percentile(projected[:, d], 98))
+                if hi <= lo:
+                    hi = lo + 1.0
+                edges.append(np.linspace(lo, hi, n_bins + 1))
+            self._archive_edges = edges
+        # Periodically update edges (every 5 gens)
+        if self.gen % 5 == 4:
+            edges = []
+            for d in range(2):
+                lo = float(np.percentile(projected[:, d], 2))
+                hi = float(np.percentile(projected[:, d], 98))
+                if hi <= lo:
+                    hi = lo + 1.0
+                edges.append(np.linspace(lo, hi, n_bins + 1))
+            self._archive_edges = edges
+        edges = self._archive_edges
+        # Place genomes in cells, keep fittest
+        for i, g in enumerate(self.pop):
+            bin_x = min(n_bins - 1, max(0, int(np.searchsorted(edges[0], projected[i, 0]) - 1)))
+            bin_y = min(n_bins - 1, max(0, int(np.searchsorted(edges[1], projected[i, 1]) - 1)))
+            cell = (bin_x, bin_y)
+            g_copy = g.copy()
+            g_copy._last_archive_sig = sigs[i].copy()
+            if cell not in self.elite_archive or g.fitness > self.elite_archive[cell][1]:
+                self.elite_archive[cell] = (g_copy, g.fitness)
+
     # ------------------------------------------------------------------
     # Main step
     # ------------------------------------------------------------------
@@ -592,6 +658,9 @@ class CRITNEAT:
             g.adjusted_fitness = g.fitness + nf
         # 5) Update archive
         self._update_archive(sigs)
+        # 5a) Update persistent elite archive (best-per-cell across all generations)
+        if self.cfg.use_elite_archive:
+            self._update_elite_archive(sigs)
         # 5b) Soft behavioral fitness sharing: divide each genome's adjusted
         # fitness by the sum of its behavioral similarities to others.
         # This is like NEAT's explicit fitness sharing but in BEHAVIOR space
