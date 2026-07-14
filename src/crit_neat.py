@@ -72,20 +72,21 @@ class CRITConfig:
     adaptive_threshold_percentile: float = 0.25  # threshold = 25th pct of pairwise dists
     # Trajectory signature (replaces per-state signature for RL)
     use_trajectory_sig: bool = True  # use trajectory-based behavioral signature
-    traj_n_bins: int = 8  # bins per state dim for trajectory signature
-    traj_max_steps: int = 200  # cap rollout length for signature
+    traj_n_bins: int = 6  # bins per state dim for trajectory signature (smaller=faster)
+    traj_max_steps: int = 120  # cap rollout length for signature
+    traj_n_seeds: int = 2  # number of trajectory seeds to average for signature
     # Functional pruning
     silent_node_var: float = 0.01
     prune_min_hidden: int = 4  # only prune when genome has >= this many hidden nodes
     # Novelty
     novelty_k: int = 5
-    novelty_coef: float = 0.10  # increased from 0.05
-    novelty_decay: float = 0.99  # decay per generation
-    novelty_coef_min: float = 0.01
+    novelty_coef: float = 0.05  # starting weight
+    novelty_decay: float = 0.97  # decay per generation (slower than 0.99)
+    novelty_coef_min: float = 0.005
     archive_size: int = 200
     archive_add_percentile: float = 0.5  # add if farther than median archive distance
     # Selection
-    elitism: int = 2
+    elitism: int = 3
     survival_threshold: float = 0.30
     # Structural bounds
     max_hidden: int = 30
@@ -189,34 +190,35 @@ class CRITNEAT:
 
     def _trajectory_signature(self, g: Genome, env_name: str,
                               eval_seed: int) -> np.ndarray:
-        """Roll out the genome and produce a histogram of visited states.
-        Each state dimension is binned independently; the signature is the
-        concatenation of normalized histograms. This captures the *distribution*
-        of states the policy visits, which is a true behavioral fingerprint.
+        """Roll out the genome on multiple seeds and produce an averaged
+        histogram of visited states. Multiple seeds reduce noise and produce
+        a more representative behavioral fingerprint.
         """
         info = get_env_info(env_name)
         env = gym.make(env_name)
+        all_states = []
         try:
-            obs, _ = env.reset(seed=eval_seed)
-            states = [np.asarray(obs, dtype=np.float32)]
-            for _ in range(self.cfg.traj_max_steps):
-                out = g.forward(list(obs))
-                if info['discrete']:
-                    action = int(np.argmax(out))
-                else:
-                    action = np.array(out, dtype=np.float32)
-                    if hasattr(env.action_space, 'low'):
-                        action = np.clip(action, env.action_space.low, env.action_space.high)
-                obs, r, term, trunc, _ = env.step(action)
-                states.append(np.asarray(obs, dtype=np.float32))
-                if term or trunc:
-                    break
-            states = np.array(states)  # (T, D)
-            # Compute per-dimension histograms
+            for s_off in range(self.cfg.traj_n_seeds):
+                seed = eval_seed + s_off * 17
+                obs, _ = env.reset(seed=seed)
+                states = [np.asarray(obs, dtype=np.float32)]
+                for _ in range(self.cfg.traj_max_steps):
+                    out = g.forward(list(obs))
+                    if info['discrete']:
+                        action = int(np.argmax(out))
+                    else:
+                        action = np.array(out, dtype=np.float32)
+                        if hasattr(env.action_space, 'low'):
+                            action = np.clip(action, env.action_space.low, env.action_space.high)
+                    obs, r, term, trunc, _ = env.step(action)
+                    states.append(np.asarray(obs, dtype=np.float32))
+                    if term or trunc:
+                        break
+                all_states.extend(states)
+            states = np.array(all_states)  # (T, D)
             n_bins = self.cfg.traj_n_bins
             D = states.shape[1]
             sig_parts = []
-            # Use env observation bounds for binning
             obs_low = env.observation_space.low
             obs_high = env.observation_space.high
             for d in range(D):
@@ -224,16 +226,35 @@ class CRITNEAT:
                 hi = obs_high[d] if np.isfinite(obs_high[d]) else float(states[:, d].max())
                 if hi <= lo:
                     hi = lo + 1.0
-                # Clip and bin
                 clipped = np.clip(states[:, d], lo, hi)
                 bins = np.linspace(lo, hi, n_bins + 1)
                 hist, _ = np.histogram(clipped, bins=bins)
-                # Normalize to distribution
                 hist = hist.astype(np.float32) / max(hist.sum(), 1)
                 sig_parts.append(hist)
             return np.concatenate(sig_parts)
         finally:
             env.close()
+
+    def _signature_from_states(self, states: np.ndarray, env) -> np.ndarray:
+        """Build a histogram signature from a pre-collected set of states.
+        This avoids duplicate rollouts when fitness eval already collected states.
+        """
+        n_bins = self.cfg.traj_n_bins
+        D = states.shape[1]
+        sig_parts = []
+        obs_low = env.observation_space.low
+        obs_high = env.observation_space.high
+        for d in range(D):
+            lo = obs_low[d] if np.isfinite(obs_low[d]) else float(states[:, d].min())
+            hi = obs_high[d] if np.isfinite(obs_high[d]) else float(states[:, d].max())
+            if hi <= lo:
+                hi = lo + 1.0
+            clipped = np.clip(states[:, d], lo, hi)
+            bins = np.linspace(lo, hi, n_bins + 1)
+            hist, _ = np.histogram(clipped, bins=bins)
+            hist = hist.astype(np.float32) / max(hist.sum(), 1)
+            sig_parts.append(hist)
+        return np.concatenate(sig_parts)
 
     def _behavioral_distance(self, s1: np.ndarray, s2: np.ndarray) -> float:
         """Distance between two behavioral signatures.
@@ -422,12 +443,39 @@ class CRITNEAT:
     # ------------------------------------------------------------------
     def step(self, env_name: str, eval_seeds: List[int]) -> dict:
         self.innov.reset_generation()
-        # 1) Sample probe states
+        # 1) Sample probe states (only used for non-trajectory signatures and criticality)
         self._sample_probe_states(env_name)
-        # 2) Evaluate fitness
-        fits = evaluate_population(self.pop, env_name, eval_seeds)
-        for g, f in zip(self.pop, fits):
-            g.fitness = f
+        # 2) Evaluate fitness AND collect trajectory states in a single rollout
+        info = get_env_info(env_name)
+        env = gym.make(env_name)
+        all_states_per_genome: List[np.ndarray] = []
+        try:
+            for g in self.pop:
+                g_states = []
+                g_fit = 0.0
+                for s in eval_seeds:
+                    obs, _ = env.reset(seed=s)
+                    total = 0.0
+                    states = [np.asarray(obs, dtype=np.float32)]
+                    for _ in range(info['max_steps']):
+                        out = g.forward(list(obs))
+                        if info['discrete']:
+                            action = int(np.argmax(out))
+                        else:
+                            action = np.array(out, dtype=np.float32)
+                            if hasattr(env.action_space, 'low'):
+                                action = np.clip(action, env.action_space.low, env.action_space.high)
+                        obs, r, term, trunc, _ = env.step(action)
+                        total += r
+                        states.append(np.asarray(obs, dtype=np.float32))
+                        if term or trunc:
+                            break
+                    g_fit += total
+                    g_states.extend(states)
+                g.fitness = g_fit / len(eval_seeds)
+                all_states_per_genome.append(np.array(g_states))
+        finally:
+            env.close()
         # 2b) Update mutation success windows: a mutation was "successful"
         # if the genome's fitness exceeded its parent's fitness.
         if self.cfg.use_adaptive_rates and self.gen > 0:
@@ -438,11 +486,16 @@ class CRITNEAT:
                     # Keep only last 5
                     if len(self.mut_success_window[i]) > 5:
                         self.mut_success_window[i] = self.mut_success_window[i][-5:]
-        # 3) Compute behavioral signatures
-        # Use a fixed seed per generation for trajectory sigs (so sigs are
-        # comparable within a generation but vary across generations).
-        sig_seed = self.gen * 1000 + 4242
-        sigs = [self._behavioral_signature(g, env_name, sig_seed) for g in self.pop]
+        # 3) Compute behavioral signatures (reuse states from fitness eval if trajectory sig)
+        if self.cfg.use_trajectory_sig:
+            env_temp = gym.make(env_name)
+            try:
+                sigs = [self._signature_from_states(states, env_temp)
+                        for states in all_states_per_genome]
+            finally:
+                env_temp.close()
+        else:
+            sigs = [self._behavioral_signature(g) for g in self.pop]
         # 4) Compute novelty bonus
         novelties = [self._novelty(s) for s in sigs]
         info = get_env_info(env_name)

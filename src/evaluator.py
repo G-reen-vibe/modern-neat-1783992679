@@ -38,9 +38,10 @@ def make_env(name: str):
 
 def eval_genome(g: Genome, env_name: str, seed: int,
                 action_fn: Optional[Callable] = None,
-                max_steps: Optional[int] = None) -> float:
+                max_steps: Optional[int] = None,
+                collect_states: bool = False) -> float | tuple:
     """Evaluate a single genome on a single episode.
-    Returns raw episode reward.
+    Returns raw episode reward (or (reward, states) if collect_states=True).
     """
     info = get_env_info(env_name)
     if max_steps is None:
@@ -49,6 +50,7 @@ def eval_genome(g: Genome, env_name: str, seed: int,
     try:
         obs, _ = env.reset(seed=seed)
         total = 0.0
+        states = [np.asarray(obs, dtype=np.float32)] if collect_states else None
         for _ in range(max_steps):
             out = g.forward(list(obs))
             if info['discrete']:
@@ -60,8 +62,12 @@ def eval_genome(g: Genome, env_name: str, seed: int,
                     action = np.clip(action, env.action_space.low, env.action_space.high)
             obs, r, term, trunc, _ = env.step(action)
             total += r
+            if collect_states:
+                states.append(np.asarray(obs, dtype=np.float32))
             if term or trunc:
                 break
+        if collect_states:
+            return total, np.array(states)
         return total
     finally:
         env.close()
