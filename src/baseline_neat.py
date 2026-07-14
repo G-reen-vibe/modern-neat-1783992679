@@ -142,6 +142,9 @@ class NEAT:
         for g in self.pop:
             g._per_seed_fitness = [eval_genome(g, env_name, s) for s in eval_seeds]
             g.fitness = float(np.mean(g._per_seed_fitness))
+            # Robustness-aware fitness for fair comparison with CRIT
+            if len(eval_seeds) >= 2:
+                g.fitness = 0.5 * g.fitness + 0.5 * float(np.min(g._per_seed_fitness))
         # 2) Speciate
         self._speciate()
         # 3) Compute adjusted fitness (explicit fitness sharing)

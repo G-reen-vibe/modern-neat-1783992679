@@ -69,6 +69,7 @@ class CRITConfig:
     use_soft_sharing: bool = True  # soft behavioral fitness sharing (vs hard clustering)
     use_intercluster_crossover: bool = True  # crossover between behaviorally different parents
     intercluster_crossover_prob: float = 0.3  # fraction of offspring from inter-cluster mating
+    use_robust_fitness: bool = True  # use 0.5*mean + 0.5*min for fitness (favors consistency)
     # Behavioral speciation
     n_probe_states: int = 50
     behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
@@ -478,6 +479,13 @@ class CRITNEAT:
                     g_per_seed.append(total)
                     g_states.extend(states)
                 g.fitness = g_fit / len(eval_seeds)
+                # Robustness-aware fitness: weight min (worst-case) heavily
+                # to favor genomes that solve ALL eval seeds over those that
+                # ace one and fail others. This addresses the overfitting
+                # problem on environments with bimodal rewards (MountainCar).
+                # We use: 0.5 * mean + 0.5 * min, which favors consistency.
+                if len(g_per_seed) >= 2 and self.cfg.use_robust_fitness:
+                    g.fitness = 0.5 * g.fitness + 0.5 * float(np.min(g_per_seed))
                 # Track robustness: store min and max per-seed fitness
                 if not hasattr(g, '_per_seed_fitness'):
                     g._per_seed_fitness = []

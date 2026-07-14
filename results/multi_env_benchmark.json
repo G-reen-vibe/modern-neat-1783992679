@@ -1,0 +1,116 @@
+{
+  "CartPole-v1": {
+    "neat": [
+      {
+        "final_best_fitness": 500.0,
+        "final_best_std": 0.0,
+        "final_best_complexity": 8,
+        "first_solve_gen": 1,
+        "elapsed_s": 7.756393194198608,
+        "best_ever_training_score": -1000000000.0
+      },
+      {
+        "final_best_fitness": 500.0,
+        "final_best_std": 0.0,
+        "final_best_complexity": 10,
+        "first_solve_gen": 2,
+        "elapsed_s": 12.448152780532837,
+        "best_ever_training_score": -1000000000.0
+      }
+    ],
+    "crit": [
+      {
+        "final_best_fitness": 500.0,
+        "final_best_std": 0.0,
+        "final_best_complexity": 11,
+        "first_solve_gen": 1,
+        "elapsed_s": 13.12562894821167,
+        "best_ever_training_score": -1000000000.0
+      },
+      {
+        "final_best_fitness": 500.0,
+        "final_best_std": 0.0,
+        "final_best_complexity": 8,
+        "first_solve_gen": 2,
+        "elapsed_s": 7.79195761680603,
+        "best_ever_training_score": -1000000000.0
+      }
+    ]
+  },
+  "MountainCar-v0": {
+    "neat": [
+      {
+        "final_best_fitness": -200.0,
+        "final_best_std": 0.0,
+        "final_best_complexity": 6,
+        "first_solve_gen": 1,
+        "elapsed_s": 6.600707292556763,
+        "best_ever_training_score": -1000000000.0
+      },
+      {
+        "final_best_fitness": -120.2,
+        "final_best_std": 3.8331884030573464,
+        "final_best_complexity": 6,
+        "first_solve_gen": 1,
+        "elapsed_s": 6.455361366271973,
+        "best_ever_training_score": -1000000000.0
+      }
+    ],
+    "crit": [
+      {
+        "final_best_fitness": -120.93333333333334,
+        "final_best_std": 4.434210439550904,
+        "final_best_complexity": 6,
+        "first_solve_gen": 1,
+        "elapsed_s": 7.096193313598633,
+        "best_ever_training_score": -1000000000.0
+      },
+      {
+        "final_best_fitness": -119.93333333333334,
+        "final_best_std": 3.855155278613589,
+        "final_best_complexity": 6,
+        "first_solve_gen": 1,
+        "elapsed_s": 6.812418699264526,
+        "best_ever_training_score": -1000000000.0
+      }
+    ]
+  },
+  "Acrobot-v1": {
+    "neat": [
+      {
+        "final_best_fitness": -79.8,
+        "final_best_std": 8.91590339412296,
+        "final_best_complexity": 20,
+        "first_solve_gen": 1,
+        "elapsed_s": 7.145253419876099,
+        "best_ever_training_score": -1000000000.0
+      },
+      {
+        "final_best_fitness": -78.86666666666666,
+        "final_best_std": 10.13815674677711,
+        "final_best_complexity": 21,
+        "first_solve_gen": 1,
+        "elapsed_s": 8.279463052749634,
+        "best_ever_training_score": -1000000000.0
+      }
+    ],
+    "crit": [
+      {
+        "final_best_fitness": -85.4,
+        "final_best_std": 23.862941981239445,
+        "final_best_complexity": 18,
+        "first_solve_gen": 1,
+        "elapsed_s": 13.05005168914795,
+        "best_ever_training_score": -1000000000.0
+      },
+      {
+        "final_best_fitness": -90.06666666666666,
+        "final_best_std": 18.890797289215246,
+        "final_best_complexity": 24,
+        "first_solve_gen": 1,
+        "elapsed_s": 8.475626230239868,
+        "best_ever_training_score": -1000000000.0
+      }
+    ]
+  }
+}
