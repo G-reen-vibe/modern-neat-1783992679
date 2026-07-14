@@ -70,6 +70,8 @@ class CRITConfig:
     use_intercluster_crossover: bool = True  # crossover between behaviorally different parents
     intercluster_crossover_prob: float = 0.3  # fraction of offspring from inter-cluster mating
     use_robust_fitness: bool = True  # use 0.5*mean + 0.5*min for fitness (favors consistency)
+    use_genetic_sharing: bool = False  # ablation: hurts because punishes structural growth
+    genetic_sharing_weight: float = 0.3  # weight on genetic component (0-1)
     # Behavioral speciation
     n_probe_states: int = 50
     behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
@@ -259,6 +261,27 @@ class CRITNEAT:
             hist = hist.astype(np.float32) / max(hist.sum(), 1)
             sig_parts.append(hist)
         return np.concatenate(sig_parts)
+
+    def _genetic_distance(self, g1: Genome, g2: Genome) -> float:
+        """Simple genetic distance: 1 - Jaccard similarity of connection sets.
+        This is a fast alternative to NEAT's compatibility distance — it
+        captures structural similarity without needing excess/disjoint/weight
+        coefficients.
+        """
+        ids1 = set(g1.conns.keys())
+        ids2 = set(g2.conns.keys())
+        if not ids1 and not ids2:
+            return 0.0
+        union = ids1 | ids2
+        inter = ids1 & ids2
+        jaccard = len(inter) / len(union) if union else 1.0
+        # Also factor in weight differences on matching conns
+        if inter:
+            wdiff = np.mean([abs(g1.conns[i].weight - g2.conns[i].weight) for i in inter])
+        else:
+            wdiff = 1.0
+        # Combine: structural distance + weighted weight distance
+        return (1.0 - jaccard) + 0.2 * wdiff
 
     def _behavioral_distance(self, s1: np.ndarray, s2: np.ndarray) -> float:
         """Distance between two behavioral signatures.
@@ -530,6 +553,8 @@ class CRITNEAT:
         # fitness by the sum of its behavioral similarities to others.
         # This is like NEAT's explicit fitness sharing but in BEHAVIOR space
         # and SOFT (no hard clusters).
+        # Additionally, if use_genetic_sharing, also factor in genetic distance
+        # so we preserve diversity along BOTH axes (multi-axis diversity).
         if self.cfg.use_soft_sharing and self.cfg.use_behavioral_spec:
             # Compute pairwise behavioral distances (cap at 60 genomes for speed)
             n = len(self.pop)
@@ -538,12 +563,17 @@ class CRITNEAT:
             for ii, i in enumerate(sample_idx):
                 for jj in range(ii+1, len(sample_idx)):
                     j = sample_idx[jj]
-                    d = self._behavioral_distance(sigs[i], sigs[j])
-                    # Sharing function: 1 if d=0, 0 if d > threshold; linear in between
-                    # Use adaptive threshold
-                    thresh = self.cfg.behavioral_threshold
-                    # Use 1.0 / (1 + d) as soft sharing — bounded, no threshold needed
-                    s = 1.0 / (1.0 + d * 5.0)  # scale so d=0.2 → share=0.5
+                    d_beh = self._behavioral_distance(sigs[i], sigs[j])
+                    s_beh = 1.0 / (1.0 + d_beh * 5.0)
+                    if self.cfg.use_genetic_sharing:
+                        d_gen = self._genetic_distance(self.pop[i], self.pop[j])
+                        s_gen = 1.0 / (1.0 + d_gen * 2.0)
+                        # Combined sharing: weighted max of behavioral and genetic
+                        # (use max because we want to penalize similarity on EITHER axis)
+                        s = (1 - self.cfg.genetic_sharing_weight) * s_beh + \
+                            self.cfg.genetic_sharing_weight * s_gen
+                    else:
+                        s = s_beh
                     shares[i] += s
                     shares[j] += s
                 shares[i] += 1.0  # self
