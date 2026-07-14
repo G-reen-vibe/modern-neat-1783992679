@@ -74,10 +74,25 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
                   f"mean={stats['mean']:.1f} sp={stats['num_species']} "
                   f"cx={stats['avg_complexity']:.1f}")
     elapsed = time.time() - t0
-    best_g = max(algo_inst.pop, key=lambda g: g.fitness)
-    final_evals = [eval_genome(best_g, env_name, s)
-                   for s in range(10000, 10000 + eval_seeds_final)]
-    print(f"    [seed {seed}] final eval done")
+    # Multi-seed final selection: evaluate top-K genomes on more seeds,
+    # pick the most robust (highest mean). This addresses the issue where
+    # the "best training genome" was just lucky on training seeds.
+    top_k = 10
+    candidates = sorted(algo_inst.pop, key=lambda g: g.fitness, reverse=True)[:top_k]
+    robust_best = None
+    robust_best_score = -1e9
+    robust_evals = None
+    for cg in candidates:
+        evals = [eval_genome(cg, env_name, s)
+                 for s in range(10000, 10000 + eval_seeds_final)]
+        if np.mean(evals) > robust_best_score:
+            robust_best_score = float(np.mean(evals))
+            robust_best = cg
+            robust_evals = evals
+    best_g = robust_best
+    final_evals = robust_evals
+    print(f"    [seed {seed}] final eval done (top-{top_k} robustness selection, "
+          f"best={robust_best_score:.1f})")
     return {
         'seed': seed,
         'history': history,

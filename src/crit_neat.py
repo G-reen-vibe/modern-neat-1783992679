@@ -67,6 +67,8 @@ class CRITConfig:
     use_adaptive_threshold: bool = True  # data-driven behavioral threshold
     use_structural_novelty_bias: bool = True  # bias growth toward un-split connections
     use_soft_sharing: bool = True  # soft behavioral fitness sharing (vs hard clustering)
+    use_intercluster_crossover: bool = True  # crossover between behaviorally different parents
+    intercluster_crossover_prob: float = 0.3  # fraction of offspring from inter-cluster mating
     # Behavioral speciation
     n_probe_states: int = 50
     behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
@@ -599,6 +601,36 @@ class CRITNEAT:
             for _ in range(allocs[ci]):
                 if not parents:
                     break
+                # With probability intercluster_crossover_prob, mate with a
+                # parent from a DIFFERENT cluster. This recombines behavioral
+                # innovations across niches — analogous to NEAT's interspecies
+                # mating but driven by behavioral (not genetic) distance.
+                if (self.cfg.use_intercluster_crossover
+                        and len(clusters) > 1
+                        and random.random() < self.cfg.intercluster_crossover_prob):
+                    # Pick another cluster, prefer one with high mean fitness
+                    other_clusters = [c for k, c in enumerate(clusters)
+                                       if k != ci and c]
+                    if other_clusters:
+                        weights = np.array([
+                            max(np.mean([self.pop[i].adjusted_fitness for i in c]), 1e-6)
+                            for c in other_clusters
+                        ])
+                        weights = weights / weights.sum()
+                        other_cl = other_clusters[int(np.random.choice(len(other_clusters), p=weights))]
+                        other_sorted = sorted(other_cl, key=lambda i: self.pop[i].adjusted_fitness, reverse=True)
+                        other_parents = other_sorted[:max(1, int(len(other_sorted) * self.cfg.survival_threshold))]
+                        p1_idx = random.choice(parents)
+                        p2_idx = random.choice(other_parents)
+                        child = self._crossover(self.pop[p1_idx], self.pop[p2_idx])
+                        # Still mutate the crossover child
+                        r = self.mut_rates[p1_idx]
+                        self._mutate(child, r)
+                        new_pop.append(child)
+                        new_rates.append(r)
+                        new_windows.append(list(self.mut_success_window[p1_idx]))
+                        new_parent_fits.append(self.pop[p1_idx].fitness)
+                        continue
                 pidx = random.choice(parents)
                 parent = self.pop[pidx]
                 child = parent.copy()
@@ -653,6 +685,52 @@ class CRITNEAT:
         }
         self.history.append(stats)
         return stats
+
+    # ------------------------------------------------------------------
+    # Crossover (used for inter-cluster mating)
+    # ------------------------------------------------------------------
+    def _crossover(self, g1: Genome, g2: Genome) -> Genome:
+        """Crossover two genomes. Matching genes: random parent.
+        Excess/disjoint: from fitter parent. Same structure as NEAT crossover
+        but used here for INTER-BEHAVIORAL-CLUSTER recombination.
+        """
+        if g1.fitness < g2.fitness:
+            g1, g2 = g2, g1
+        child = Genome(self.num_inputs, self.num_outputs, self.gen)
+        ids1 = set(g1.conns.keys())
+        ids2 = set(g2.conns.keys())
+        all_ids = ids1 | ids2
+        for cid in all_ids:
+            in1 = cid in g1.conns
+            in2 = cid in g2.conns
+            if in1 and in2:
+                src = g1.conns[cid] if random.random() < 0.5 else g2.conns[cid]
+                enabled = src.enabled
+                if (not g1.conns[cid].enabled) or (not g2.conns[cid].enabled):
+                    if random.random() < 0.75:
+                        enabled = False
+                child.conns[cid] = ConnGene(cid, src.in_node, src.out_node,
+                                             src.weight, enabled, self.gen)
+            elif in1:
+                c = g1.conns[cid]
+                child.conns[cid] = ConnGene(cid, c.in_node, c.out_node,
+                                             c.weight, c.enabled, self.gen)
+            # Skip excess from less-fit parent
+        # Inherit all nodes referenced
+        needed = set()
+        for c in child.conns.values():
+            needed.add(c.in_node)
+            needed.add(c.out_node)
+        for i in range(self.num_inputs + self.num_outputs):
+            needed.add(i)
+        for nid in needed:
+            if nid in g1.nodes:
+                n = g1.nodes[nid]
+                child.nodes[nid] = NodeGene(nid, n.kind, self.gen)
+            elif nid in g2.nodes:
+                n = g2.nodes[nid]
+                child.nodes[nid] = NodeGene(nid, n.kind, self.gen)
+        return child
 
     # ------------------------------------------------------------------
     # Mutation
