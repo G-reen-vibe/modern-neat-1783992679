@@ -137,10 +137,11 @@ class NEAT:
     def step(self, env_name: str, eval_seeds: List[int]) -> dict:
         """One generation of evolution. Returns stats dict."""
         self.innov.reset_generation()
-        # 1) Evaluate
-        fits = evaluate_population(self.pop, env_name, eval_seeds)
-        for g, f in zip(self.pop, fits):
-            g.fitness = f
+        # 1) Evaluate (and track per-seed fitness for robustness analysis)
+        from .evaluator import eval_genome
+        for g in self.pop:
+            g._per_seed_fitness = [eval_genome(g, env_name, s) for s in eval_seeds]
+            g.fitness = float(np.mean(g._per_seed_fitness))
         # 2) Speciate
         self._speciate()
         # 3) Compute adjusted fitness (explicit fitness sharing)

@@ -64,25 +64,44 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
             verbose: bool = False) -> dict:
     algo_inst = build_algo(algo, env_name, cfg_kwargs, seed=seed)
     history = []
+    # Track the best-ever genome (by single-seed reward, not average)
+    best_ever_genome = None
+    best_ever_score = -1e9
     t0 = time.time()
     for gen in range(gens):
-        eval_seeds = [seed * 1000 + gen * 7 + k for k in range(eval_seeds_per_gen)]
+        # Rotate eval seeds each generation to prevent overfitting to specific seeds.
+        eval_seeds = [seed * 10000 + gen * 13 + k * 7 for k in range(eval_seeds_per_gen)]
         stats = algo_inst.step(env_name, eval_seeds)
         history.append(stats)
+        # Track best-ever: any genome that achieved a new high score on any single seed
+        for g in algo_inst.pop:
+            if hasattr(g, '_per_seed_fitness'):
+                for ps in g._per_seed_fitness:
+                    if ps > best_ever_score:
+                        best_ever_score = ps
+                        best_ever_genome = g.copy()
         if verbose and (gen % 10 == 0 or gen == gens - 1):
             print(f"    [seed {seed}] gen {gen}: best={stats['best']:.1f} "
                   f"mean={stats['mean']:.1f} sp={stats['num_species']} "
                   f"cx={stats['avg_complexity']:.1f}")
     elapsed = time.time() - t0
-    # Multi-seed final selection: evaluate top-K genomes on more seeds,
-    # pick the most robust (highest mean). This addresses the issue where
-    # the "best training genome" was just lucky on training seeds.
-    top_k = 10
-    candidates = sorted(algo_inst.pop, key=lambda g: g.fitness, reverse=True)[:top_k]
+    # Final selection: combine best-ever + top-K by current fitness
+    candidates = []
+    if best_ever_genome is not None:
+        candidates.append(best_ever_genome)
+    candidates.extend(sorted(algo_inst.pop, key=lambda g: g.fitness, reverse=True)[:10])
+    # Deduplicate by identity (best_ever may already be in pop)
+    seen = set()
+    unique_candidates = []
+    for c in candidates:
+        if id(c) not in seen:
+            seen.add(id(c))
+            unique_candidates.append(c)
+    # Evaluate all candidates on fresh seeds, pick best by mean
     robust_best = None
     robust_best_score = -1e9
     robust_evals = None
-    for cg in candidates:
+    for cg in unique_candidates:
         evals = [eval_genome(cg, env_name, s)
                  for s in range(10000, 10000 + eval_seeds_final)]
         if np.mean(evals) > robust_best_score:
@@ -91,8 +110,8 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
             robust_evals = evals
     best_g = robust_best
     final_evals = robust_evals
-    print(f"    [seed {seed}] final eval done (top-{top_k} robustness selection, "
-          f"best={robust_best_score:.1f})")
+    print(f"    [seed {seed}] final eval done ({len(unique_candidates)} candidates, "
+          f"best={np.mean(robust_evals):.1f} ± {np.std(robust_evals):.1f})")
     return {
         'seed': seed,
         'history': history,
@@ -105,6 +124,7 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
         'final_best_complexity': best_g.complexity(),
         'final_best_hidden': best_g.num_hidden(),
         'first_solve_gen': _compute_first_solve(history, env_name),
+        'best_ever_training_score': float(best_ever_score),
     }
 
 

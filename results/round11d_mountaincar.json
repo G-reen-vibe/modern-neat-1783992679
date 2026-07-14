@@ -1,0 +1,1377 @@
+{
+  "env": "MountainCar-v0",
+  "gens": 20,
+  "n_seeds": 3,
+  "pop_size": 40,
+  "tag": "round11d_mountaincar",
+  "algos": {
+    "neat": {
+      "runs": [
+        {
+          "seed": 0,
+          "history": [
+            {
+              "gen": 1,
+              "best": 0.0,
+              "mean": -70.0,
+              "num_species": 1,
+              "avg_complexity": 6.0,
+              "max_complexity": 6
+            },
+            {
+              "gen": 2,
+              "best": 0.0,
+              "mean": -44.989999999999995,
+              "num_species": 1,
+              "avg_complexity": 6.0,
+              "max_complexity": 6
+            },
+            {
+              "gen": 3,
+              "best": 0.0,
+              "mean": -74.98499999999999,
+              "num_species": 1,
+              "avg_complexity": 6.05,
+              "max_complexity": 8
+            },
+            {
+              "gen": 4,
+              "best": 0.0,
+              "mean": -44.635000000000005,
+              "num_species": 1,
+              "avg_complexity": 6.1,
+              "max_complexity": 8
+            },
+            {
+              "gen": 5,
+              "best": 0.0,
+              "mean": -60.0,
+              "num_species": 1,
+              "avg_complexity": 6.725,
+              "max_complexity": 10
+            },
+            {
+              "gen": 6,
+              "best": 0.0,
+              "mean": -120.0,
+              "num_species": 2,
+              "avg_complexity": 9.3,
+              "max_complexity": 12
+            },
+            {
+              "gen": 7,
+              "best": 0.0,
+              "mean": -135.0,
+              "num_species": 5,
+              "avg_complexity": 9.875,
+              "max_complexity": 12
+            },
+            {
+              "gen": 8,
+              "best": -168.8,
+              "mean": -195.32,
+              "num_species": 6,
+              "avg_complexity": 9.375,
+              "max_complexity": 11
+            },
+            {
+              "gen": 9,
+              "best": -168.4,
+              "mean": -195.26,
+              "num_species": 6,
+              "avg_complexity": 9.4,
+              "max_complexity": 13
+            },
+            {
+              "gen": 10,
+              "best": -179.8,
+              "mean": -196.96999999999997,
+              "num_species": 7,
+              "avg_complexity": 9.85,
+              "max_complexity": 13
+            },
+            {
+              "gen": 11,
+              "best": -169.4,
+              "mean": -195.41,
+              "num_species": 7,
+              "avg_complexity": 9.9,
+              "max_complexity": 13
+            },
+            {
+              "gen": 12,
+              "best": -117.6,
+              "mean": -179.69,
+              "num_species": 7,
+              "avg_complexity": 9.975,
+              "max_complexity": 13
+            },
+            {
+              "gen": 13,
+              "best": -151.2,
+              "mean": -188.655,
+              "num_species": 7,
+              "avg_complexity": 9.925,
+              "max_complexity": 14
+            },
+            {
+              "gen": 14,
+              "best": -169.4,
+              "mean": -195.41,
+              "num_species": 7,
+              "avg_complexity": 9.925,
+              "max_complexity": 13
+            },
+            {
+              "gen": 15,
+              "best": -156.4,
+              "mean": -191.48499999999999,
+              "num_species": 7,
+              "avg_complexity": 9.925,
+              "max_complexity": 13
+            },
+            {
+              "gen": 16,
+              "best": -151.8,
+              "mean": -184.725,
+              "num_species": 7,
+              "avg_complexity": 9.95,
+              "max_complexity": 13
+            },
+            {
+              "gen": 17,
+              "best": -184.4,
+              "mean": -195.785,
+              "num_species": 7,
+              "avg_complexity": 10.025,
+              "max_complexity": 13
+            },
+            {
+              "gen": 18,
+              "best": -138.6,
+              "mean": -182.76,
+              "num_species": 7,
+              "avg_complexity": 10.075,
+              "max_complexity": 14
+            },
+            {
+              "gen": 19,
+              "best": -169.4,
+              "mean": -193.33499999999998,
+              "num_species": 7,
+              "avg_complexity": 10.05,
+              "max_complexity": 13
+            },
+            {
+              "gen": 20,
+              "best": -169.4,
+              "mean": -189.58499999999998,
+              "num_species": 7,
+              "avg_complexity": 10.05,
+              "max_complexity": 14
+            }
+          ],
+          "elapsed_s": 24.4468514919281,
+          "final_best_fitness": -131.0,
+          "final_best_std": 23.600847442411894,
+          "final_best_min": -200.0,
+          "final_best_max": -116.0,
+          "final_best_evals": [
+            -124.0,
+            -135.0,
+            -127.0,
+            -133.0,
+            -200.0,
+            -118.0,
+            -117.0,
+            -200.0,
+            -126.0,
+            -124.0,
+            -117.0,
+            -123.0,
+            -116.0,
+            -123.0,
+            -117.0,
+            -123.0,
+            -117.0,
+            -126.0,
+            -123.0,
+            -131.0
+          ],
+          "final_best_complexity": 6,
+          "final_best_hidden": 0,
+          "first_solve_gen": 1
+        },
+        {
+          "seed": 1,
+          "history": [
+            {
+              "gen": 1,
+              "best": 0.0,
+              "mean": -37.225,
+              "num_species": 1,
+              "avg_complexity": 6.05,
+              "max_complexity": 8
+            },
+            {
+              "gen": 2,
+              "best": 0.0,
+              "mean": -54.05,
+              "num_species": 1,
+              "avg_complexity": 6.0,
+              "max_complexity": 6
+            },
+            {
+              "gen": 3,
+              "best": 0.0,
+              "mean": -46.614999999999995,
+              "num_species": 1,
+              "avg_complexity": 6.15,
+              "max_complexity": 8
+            },
+            {
+              "gen": 4,
+              "best": 0.0,
+              "mean": -58.165,
+              "num_species": 1,
+              "avg_complexity": 6.5,
+              "max_complexity": 8
+            },
+            {
+              "gen": 5,
+              "best": 0.0,
+              "mean": -41.13,
+              "num_species": 1,
+              "avg_complexity": 6.825,
+              "max_complexity": 9
+            },
+            {
+              "gen": 6,
+              "best": 0.0,
+              "mean": -23.044999999999998,
+              "num_species": 2,
+              "avg_complexity": 7.8,
+              "max_complexity": 10
+            },
+            {
+              "gen": 7,
+              "best": 0.0,
+              "mean": -88.035,
+              "num_species": 3,
+              "avg_complexity": 8.15,
+              "max_complexity": 10
+            },
+            {
+              "gen": 8,
+              "best": 0.0,
+              "mean": -51.98,
+              "num_species": 3,
+              "avg_complexity": 8.05,
+              "max_complexity": 10
+            },
+            {
+              "gen": 9,
+              "best": 0.0,
+              "mean": -46.53,
+              "num_species": 3,
+              "avg_complexity": 8.0,
+              "max_complexity": 8
+            },
+            {
+              "gen": 10,
+              "best": 0.0,
+              "mean": -75.50999999999999,
+              "num_species": 3,
+              "avg_complexity": 8.125,
+              "max_complexity": 10
+            },
+            {
+              "gen": 11,
+              "best": 0.0,
+              "mean": -75.15,
+              "num_species": 3,
+              "avg_complexity": 8.2,
+              "max_complexity": 11
+            },
+            {
+              "gen": 12,
+              "best": 0.0,
+              "mean": -78.78,
+              "num_species": 4,
+              "avg_complexity": 8.875,
+              "max_complexity": 12
+            },
+            {
+              "gen": 13,
+              "best": 0.0,
+              "mean": -80.92999999999999,
+              "num_species": 4,
+              "avg_complexity": 8.8,
+              "max_complexity": 12
+            },
+            {
+              "gen": 14,
+              "best": 0.0,
+              "mean": -73.87,
+              "num_species": 4,
+              "avg_complexity": 9.1,
+              "max_complexity": 13
+            },
+            {
+              "gen": 15,
+              "best": 0.0,
+              "mean": -65.99,
+              "num_species": 4,
+              "avg_complexity": 9.425,
+              "max_complexity": 14
+            },
+            {
+              "gen": 16,
+              "best": 0.0,
+              "mean": -99.30999999999999,
+              "num_species": 5,
+              "avg_complexity": 10.25,
+              "max_complexity": 15
+            },
+            {
+              "gen": 17,
+              "best": -119.8,
+              "mean": -185.96499999999997,
+              "num_species": 6,
+              "avg_complexity": 9.975,
+              "max_complexity": 14
+            },
+            {
+              "gen": 18,
+              "best": -120.4,
+              "mean": -183.69,
+              "num_species": 6,
+              "avg_complexity": 9.875,
+              "max_complexity": 14
+            },
+            {
+              "gen": 19,
+              "best": -119.4,
+              "mean": -184.285,
+              "num_species": 6,
+              "avg_complexity": 10.0,
+              "max_complexity": 15
+            },
+            {
+              "gen": 20,
+              "best": -122.2,
+              "mean": -184.00500000000002,
+              "num_species": 6,
+              "avg_complexity": 9.975,
+              "max_complexity": 14
+            }
+          ],
+          "elapsed_s": 16.229142904281616,
+          "final_best_fitness": -120.75,
+          "final_best_std": 4.229361653961505,
+          "final_best_min": -124.0,
+          "final_best_max": -114.0,
+          "final_best_evals": [
+            -124.0,
+            -123.0,
+            -123.0,
+            -123.0,
+            -124.0,
+            -115.0,
+            -115.0,
+            -124.0,
+            -123.0,
+            -124.0,
+            -114.0,
+            -124.0,
+            -114.0,
+            -124.0,
+            -114.0,
+            -124.0,
+            -114.0,
+            -123.0,
+            -123.0,
+            -123.0
+          ],
+          "final_best_complexity": 8,
+          "final_best_hidden": 1,
+          "first_solve_gen": 1
+        },
+        {
+          "seed": 2,
+          "history": [
+            {
+              "gen": 1,
+              "best": 0.0,
+              "mean": -50.0,
+              "num_species": 1,
+              "avg_complexity": 6.1,
+              "max_complexity": 8
+            },
+            {
+              "gen": 2,
+              "best": 0.0,
+              "mean": -70.0,
+              "num_species": 1,
+              "avg_complexity": 6.1,
+              "max_complexity": 8
+            },
+            {
+              "gen": 3,
+              "best": 0.0,
+              "mean": -55.0,
+              "num_species": 1,
+              "avg_complexity": 6.0,
+              "max_complexity": 6
+            },
+            {
+              "gen": 4,
+              "best": 0.0,
+              "mean": -70.0,
+              "num_species": 1,
+              "avg_complexity": 6.15,
+              "max_complexity": 8
+            },
+            {
+              "gen": 5,
+              "best": 0.0,
+              "mean": -52.845000000000006,
+              "num_species": 1,
+              "avg_complexity": 6.0,
+              "max_complexity": 6
+            },
+            {
+              "gen": 6,
+              "best": 0.0,
+              "mean": -61.50999999999999,
+              "num_species": 1,
+              "avg_complexity": 6.0,
+              "max_complexity": 6
+            },
+            {
+              "gen": 7,
+              "best": 0.0,
+              "mean": -53.725,
+              "num_species": 1,
+              "avg_complexity": 6.2,
+              "max_complexity": 8
+            },
+            {
+              "gen": 8,
+              "best": 0.0,
+              "mean": -71.85,
+              "num_species": 1,
+              "avg_complexity": 6.525,
+              "max_complexity": 9
+            },
+            {
+              "gen": 9,
+              "best": 0.0,
+              "mean": -48.010000000000005,
+              "num_species": 1,
+              "avg_complexity": 7.025,
+              "max_complexity": 10
+            },
+            {
+              "gen": 10,
+              "best": 0.0,
+              "mean": -113.46,
+              "num_species": 2,
+              "avg_complexity": 8.85,
+              "max_complexity": 12
+            },
+            {
+              "gen": 11,
+              "best": 0.0,
+              "mean": -37.79,
+              "num_species": 2,
+              "avg_complexity": 8.875,
+              "max_complexity": 10
+            },
+            {
+              "gen": 12,
+              "best": 0.0,
+              "mean": -106.655,
+              "num_species": 3,
+              "avg_complexity": 9.025,
+              "max_complexity": 11
+            },
+            {
+              "gen": 13,
+              "best": 0.0,
+              "mean": -105.56500000000001,
+              "num_species": 4,
+              "avg_complexity": 9.475,
+              "max_complexity": 11
+            },
+            {
+              "gen": 14,
+              "best": 0.0,
+              "mean": -49.150000000000006,
+              "num_species": 3,
+              "avg_complexity": 9.475,
+              "max_complexity": 13
+            },
+            {
+              "gen": 15,
+              "best": 0.0,
+              "mean": -131.49,
+              "num_species": 5,
+              "avg_complexity": 9.65,
+              "max_complexity": 12
+            },
+            {
+              "gen": 16,
+              "best": -118.0,
+              "mean": -164.04000000000002,
+              "num_species": 5,
+              "avg_complexity": 9.25,
+              "max_complexity": 12
+            },
+            {
+              "gen": 17,
+              "best": -136.4,
+              "mean": -165.0,
+              "num_species": 5,
+              "avg_complexity": 9.225,
+              "max_complexity": 11
+            },
+            {
+              "gen": 18,
+              "best": -120.2,
+              "mean": -158.84,
+              "num_species": 5,
+              "avg_complexity": 9.3,
+              "max_complexity": 11
+            },
+            {
+              "gen": 19,
+              "best": -119.6,
+              "mean": -147.84,
+              "num_species": 5,
+              "avg_complexity": 9.25,
+              "max_complexity": 11
+            },
+            {
+              "gen": 20,
+              "best": -121.8,
+              "mean": -148.04000000000002,
+              "num_species": 5,
+              "avg_complexity": 9.3,
+              "max_complexity": 12
+            }
+          ],
+          "elapsed_s": 17.015183448791504,
+          "final_best_fitness": -120.1,
+          "final_best_std": 3.7536648758246915,
+          "final_best_min": -124.0,
+          "final_best_max": -114.0,
+          "final_best_evals": [
+            -122.0,
+            -122.0,
+            -122.0,
+            -122.0,
+            -124.0,
+            -116.0,
+            -115.0,
+            -123.0,
+            -122.0,
+            -122.0,
+            -114.0,
+            -123.0,
+            -114.0,
+            -123.0,
+            -114.0,
+            -123.0,
+            -114.0,
+            -121.0,
+            -124.0,
+            -122.0
+          ],
+          "final_best_complexity": 6,
+          "final_best_hidden": 0,
+          "first_solve_gen": 1
+        }
+      ],
+      "mean_final": -123.95,
+      "std_final": 4.9921605209234485,
+      "mean_time": 19.230392615000408,
+      "mean_complexity": 6.666666666666667,
+      "solve_rate": 1.0
+    },
+    "crit": {
+      "runs": [
+        {
+          "seed": 0,
+          "history": [
+            {
+              "gen": 1,
+              "best": 0.0,
+              "mean": -140.0,
+              "num_species": 3,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 3,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.05
+            },
+            {
+              "gen": 2,
+              "best": 0.0,
+              "mean": -145.0,
+              "num_species": 5,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0485
+            },
+            {
+              "gen": 3,
+              "best": 0.0,
+              "mean": -130.0,
+              "num_species": 5,
+              "avg_complexity": 6.15,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.047045000000000003
+            },
+            {
+              "gen": 4,
+              "best": 0.0,
+              "mean": -155.0,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.04563365
+            },
+            {
+              "gen": 5,
+              "best": 0.0,
+              "mean": -130.0,
+              "num_species": 4,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0442646405
+            },
+            {
+              "gen": 6,
+              "best": 0.0,
+              "mean": -140.0,
+              "num_species": 5,
+              "avg_complexity": 6.1,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.042936701285
+            },
+            {
+              "gen": 7,
+              "best": 0.0,
+              "mean": -150.0,
+              "num_species": 7,
+              "avg_complexity": 6.2,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.04164860024644999
+            },
+            {
+              "gen": 8,
+              "best": 0.0,
+              "mean": -135.0,
+              "num_species": 7,
+              "avg_complexity": 6.375,
+              "max_complexity": 9,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.040399142239056496
+            },
+            {
+              "gen": 9,
+              "best": 0.0,
+              "mean": -155.0,
+              "num_species": 6,
+              "avg_complexity": 6.325,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0391871679718848
+            },
+            {
+              "gen": 10,
+              "best": 0.0,
+              "mean": -125.0,
+              "num_species": 5,
+              "avg_complexity": 6.25,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03801155293272826
+            },
+            {
+              "gen": 11,
+              "best": 0.0,
+              "mean": -140.0,
+              "num_species": 7,
+              "avg_complexity": 6.175,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03687120634474641
+            },
+            {
+              "gen": 12,
+              "best": 0.0,
+              "mean": -170.0,
+              "num_species": 6,
+              "avg_complexity": 5.95,
+              "max_complexity": 9,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03576507015440401
+            },
+            {
+              "gen": 13,
+              "best": 0.0,
+              "mean": -160.0,
+              "num_species": 6,
+              "avg_complexity": 5.875,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03469211804977189
+            },
+            {
+              "gen": 14,
+              "best": 0.0,
+              "mean": -145.0,
+              "num_species": 5,
+              "avg_complexity": 5.925,
+              "max_complexity": 8,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03365135450827873
+            },
+            {
+              "gen": 15,
+              "best": 0.0,
+              "mean": -160.0,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03264181387303037
+            },
+            {
+              "gen": 16,
+              "best": 0.0,
+              "mean": -140.0,
+              "num_species": 5,
+              "avg_complexity": 6.125,
+              "max_complexity": 9,
+              "archive_size": 8,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.031662559456839455
+            },
+            {
+              "gen": 17,
+              "best": 0.0,
+              "mean": -135.0,
+              "num_species": 7,
+              "avg_complexity": 6.35,
+              "max_complexity": 9,
+              "archive_size": 9,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.030712682673134276
+            },
+            {
+              "gen": 18,
+              "best": 0.0,
+              "mean": -125.0,
+              "num_species": 9,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 9,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.029791302192940246
+            },
+            {
+              "gen": 19,
+              "best": 0.0,
+              "mean": -150.0,
+              "num_species": 6,
+              "avg_complexity": 6.025,
+              "max_complexity": 8,
+              "archive_size": 9,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.02889756312715204
+            },
+            {
+              "gen": 20,
+              "best": 0.0,
+              "mean": -155.0,
+              "num_species": 7,
+              "avg_complexity": 5.725,
+              "max_complexity": 8,
+              "archive_size": 9,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.028030636233337475
+            }
+          ],
+          "elapsed_s": 18.27512502670288,
+          "final_best_fitness": -200.0,
+          "final_best_std": 0.0,
+          "final_best_min": -200.0,
+          "final_best_max": -200.0,
+          "final_best_evals": [
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0
+          ],
+          "final_best_complexity": 6,
+          "final_best_hidden": 0,
+          "first_solve_gen": 1
+        },
+        {
+          "seed": 1,
+          "history": [
+            {
+              "gen": 1,
+              "best": 0.0,
+              "mean": -157.225,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.05
+            },
+            {
+              "gen": 2,
+              "best": 0.0,
+              "mean": -168.76,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0485
+            },
+            {
+              "gen": 3,
+              "best": 0.0,
+              "mean": -158.66,
+              "num_species": 6,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.047045000000000003
+            },
+            {
+              "gen": 4,
+              "best": 0.0,
+              "mean": -139.99499999999998,
+              "num_species": 4,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.04563365
+            },
+            {
+              "gen": 5,
+              "best": 0.0,
+              "mean": -109.525,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0442646405
+            },
+            {
+              "gen": 6,
+              "best": 0.0,
+              "mean": -123.26500000000001,
+              "num_species": 7,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.042936701285
+            },
+            {
+              "gen": 7,
+              "best": 0.0,
+              "mean": -125.39000000000001,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.04164860024644999
+            },
+            {
+              "gen": 8,
+              "best": 0.0,
+              "mean": -125.76500000000001,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.040399142239056496
+            },
+            {
+              "gen": 9,
+              "best": 0.0,
+              "mean": -144.425,
+              "num_species": 5,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0391871679718848
+            },
+            {
+              "gen": 10,
+              "best": 0.0,
+              "mean": -106.775,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03801155293272826
+            },
+            {
+              "gen": 11,
+              "best": 0.0,
+              "mean": -126.35,
+              "num_species": 5,
+              "avg_complexity": 6.1,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03687120634474641
+            },
+            {
+              "gen": 12,
+              "best": 0.0,
+              "mean": -131.23,
+              "num_species": 5,
+              "avg_complexity": 6.025,
+              "max_complexity": 9,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03576507015440401
+            },
+            {
+              "gen": 13,
+              "best": 0.0,
+              "mean": -130.99499999999998,
+              "num_species": 5,
+              "avg_complexity": 5.95,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03469211804977189
+            },
+            {
+              "gen": 14,
+              "best": 0.0,
+              "mean": -142.71999999999997,
+              "num_species": 5,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03365135450827873
+            },
+            {
+              "gen": 15,
+              "best": 0.0,
+              "mean": -127.035,
+              "num_species": 5,
+              "avg_complexity": 6.1,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03264181387303037
+            },
+            {
+              "gen": 16,
+              "best": 0.0,
+              "mean": -119.475,
+              "num_species": 5,
+              "avg_complexity": 6.2,
+              "max_complexity": 9,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.031662559456839455
+            },
+            {
+              "gen": 17,
+              "best": 0.0,
+              "mean": -100.545,
+              "num_species": 7,
+              "avg_complexity": 5.85,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.030712682673134276
+            },
+            {
+              "gen": 18,
+              "best": 0.0,
+              "mean": -110.15,
+              "num_species": 4,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.029791302192940246
+            },
+            {
+              "gen": 19,
+              "best": 0.0,
+              "mean": -129.4,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.02889756312715204
+            },
+            {
+              "gen": 20,
+              "best": 0.0,
+              "mean": -96.52000000000001,
+              "num_species": 7,
+              "avg_complexity": 6.05,
+              "max_complexity": 8,
+              "archive_size": 5,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.028030636233337475
+            }
+          ],
+          "elapsed_s": 21.183827877044678,
+          "final_best_fitness": -120.35,
+          "final_best_std": 3.9909272105614755,
+          "final_best_min": -124.0,
+          "final_best_max": -114.0,
+          "final_best_evals": [
+            -123.0,
+            -122.0,
+            -123.0,
+            -122.0,
+            -123.0,
+            -115.0,
+            -115.0,
+            -122.0,
+            -123.0,
+            -123.0,
+            -114.0,
+            -124.0,
+            -114.0,
+            -124.0,
+            -114.0,
+            -124.0,
+            -114.0,
+            -123.0,
+            -123.0,
+            -122.0
+          ],
+          "final_best_complexity": 6,
+          "final_best_hidden": 0,
+          "first_solve_gen": 1
+        },
+        {
+          "seed": 2,
+          "history": [
+            {
+              "gen": 1,
+              "best": 0.0,
+              "mean": -155.0,
+              "num_species": 3,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 4,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.05
+            },
+            {
+              "gen": 2,
+              "best": 0.0,
+              "mean": -155.0,
+              "num_species": 4,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 10,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0485
+            },
+            {
+              "gen": 3,
+              "best": 0.0,
+              "mean": -140.0,
+              "num_species": 4,
+              "avg_complexity": 6.1,
+              "max_complexity": 8,
+              "archive_size": 10,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.047045000000000003
+            },
+            {
+              "gen": 4,
+              "best": 0.0,
+              "mean": -140.0,
+              "num_species": 3,
+              "avg_complexity": 6.175,
+              "max_complexity": 9,
+              "archive_size": 10,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.04563365
+            },
+            {
+              "gen": 5,
+              "best": 0.0,
+              "mean": -110.0,
+              "num_species": 4,
+              "avg_complexity": 6.2,
+              "max_complexity": 8,
+              "archive_size": 10,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0442646405
+            },
+            {
+              "gen": 6,
+              "best": 0.0,
+              "mean": -170.0,
+              "num_species": 5,
+              "avg_complexity": 5.85,
+              "max_complexity": 6,
+              "archive_size": 10,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.042936701285
+            },
+            {
+              "gen": 7,
+              "best": 0.0,
+              "mean": -135.0,
+              "num_species": 6,
+              "avg_complexity": 6.15,
+              "max_complexity": 8,
+              "archive_size": 10,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.04164860024644999
+            },
+            {
+              "gen": 8,
+              "best": 0.0,
+              "mean": -150.0,
+              "num_species": 8,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 12,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.040399142239056496
+            },
+            {
+              "gen": 9,
+              "best": 0.0,
+              "mean": -155.0,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 12,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.0391871679718848
+            },
+            {
+              "gen": 10,
+              "best": 0.0,
+              "mean": -135.0,
+              "num_species": 10,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03801155293272826
+            },
+            {
+              "gen": 11,
+              "best": 0.0,
+              "mean": -150.0,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03687120634474641
+            },
+            {
+              "gen": 12,
+              "best": 0.0,
+              "mean": -125.0,
+              "num_species": 5,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03576507015440401
+            },
+            {
+              "gen": 13,
+              "best": 0.0,
+              "mean": -147.4,
+              "num_species": 8,
+              "avg_complexity": 6.0,
+              "max_complexity": 6,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03469211804977189
+            },
+            {
+              "gen": 14,
+              "best": 0.0,
+              "mean": -134.45,
+              "num_species": 10,
+              "avg_complexity": 6.1,
+              "max_complexity": 8,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03365135450827873
+            },
+            {
+              "gen": 15,
+              "best": 0.0,
+              "mean": -136.555,
+              "num_species": 8,
+              "avg_complexity": 6.1,
+              "max_complexity": 8,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.03264181387303037
+            },
+            {
+              "gen": 16,
+              "best": 0.0,
+              "mean": -125.60999999999999,
+              "num_species": 7,
+              "avg_complexity": 6.15,
+              "max_complexity": 8,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.031662559456839455
+            },
+            {
+              "gen": 17,
+              "best": 0.0,
+              "mean": -132.255,
+              "num_species": 7,
+              "avg_complexity": 6.15,
+              "max_complexity": 8,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.030712682673134276
+            },
+            {
+              "gen": 18,
+              "best": 0.0,
+              "mean": -118.29,
+              "num_species": 11,
+              "avg_complexity": 6.225,
+              "max_complexity": 9,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.029791302192940246
+            },
+            {
+              "gen": 19,
+              "best": 0.0,
+              "mean": -121.55499999999998,
+              "num_species": 5,
+              "avg_complexity": 6.15,
+              "max_complexity": 8,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.02889756312715204
+            },
+            {
+              "gen": 20,
+              "best": 0.0,
+              "mean": -126.28,
+              "num_species": 6,
+              "avg_complexity": 6.15,
+              "max_complexity": 8,
+              "archive_size": 13,
+              "avg_mut_rate": 0.5,
+              "eff_novelty_coef": 0.028030636233337475
+            }
+          ],
+          "elapsed_s": 17.262534856796265,
+          "final_best_fitness": -200.0,
+          "final_best_std": 0.0,
+          "final_best_min": -200.0,
+          "final_best_max": -200.0,
+          "final_best_evals": [
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0,
+            -200.0
+          ],
+          "final_best_complexity": 6,
+          "final_best_hidden": 0,
+          "first_solve_gen": 1
+        }
+      ],
+      "mean_final": -173.45000000000002,
+      "std_final": 37.547370081005674,
+      "mean_time": 18.907162586847942,
+      "mean_complexity": 6.0,
+      "solve_rate": 1.0
+    }
+  }
+}

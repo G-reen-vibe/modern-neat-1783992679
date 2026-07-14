@@ -456,6 +456,7 @@ class CRITNEAT:
             for g in self.pop:
                 g_states = []
                 g_fit = 0.0
+                g_per_seed = []  # per-seed fitness for robustness tracking
                 for s in eval_seeds:
                     obs, _ = env.reset(seed=s)
                     total = 0.0
@@ -474,8 +475,13 @@ class CRITNEAT:
                         if term or trunc:
                             break
                     g_fit += total
+                    g_per_seed.append(total)
                     g_states.extend(states)
                 g.fitness = g_fit / len(eval_seeds)
+                # Track robustness: store min and max per-seed fitness
+                if not hasattr(g, '_per_seed_fitness'):
+                    g._per_seed_fitness = []
+                g._per_seed_fitness = g_per_seed
                 all_states_per_genome.append(np.array(g_states))
         finally:
             env.close()
