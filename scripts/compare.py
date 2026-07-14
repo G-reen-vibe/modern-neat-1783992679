@@ -22,6 +22,26 @@ from src.evaluator import eval_genome, get_env_info
 import gymnasium as gym
 
 
+# Per-env solve thresholds
+_SOLVE_THRESHOLDS = {
+    'CartPole-v1': 475.0,    # >=475 over 500 max
+    'CartPole-v0': 195.0,
+    'MountainCar-v0': -110.0,  # >=-110 (max is 0)
+    'Acrobot-v1': -100.0,      # >=-100 (max is 0)
+    'LunarLander-v2': 200.0,
+}
+
+
+def _compute_first_solve(history, env_name):
+    thresh = _SOLVE_THRESHOLDS.get(env_name)
+    if thresh is None:
+        return None
+    for h in history:
+        if h['best'] >= thresh:
+            return h['gen']
+    return None
+
+
 def build_algo(algo: str, env_name: str, cfg_kwargs: dict, seed: int):
     np.random.seed(seed)
     random.seed(seed)
@@ -69,8 +89,7 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
         'final_best_evals': [float(x) for x in final_evals],
         'final_best_complexity': best_g.complexity(),
         'final_best_hidden': best_g.num_hidden(),
-        'first_solve_gen': next((h['gen'] for h in history
-                                 if h['best'] >= get_env_info(env_name)['r_max'] * 0.95), None),
+        'first_solve_gen': _compute_first_solve(history, env_name),
     }
 
 

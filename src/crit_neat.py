@@ -62,7 +62,7 @@ class CRITConfig:
     use_behavioral_spec: bool = True
     use_criticality_growth: bool = True
     use_functional_pruning: bool = True
-    use_adaptive_rates: bool = True
+    use_adaptive_rates: bool = False  # ablation showed this HURTS — too noisy with 5-sample window
     use_novelty_bonus: bool = True
     use_adaptive_threshold: bool = True  # data-driven behavioral threshold
     use_structural_novelty_bias: bool = True  # bias growth toward un-split connections
