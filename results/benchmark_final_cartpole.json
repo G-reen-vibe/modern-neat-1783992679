@@ -1,0 +1,76 @@
+{
+  "neat": {
+    "mean": 500.0,
+    "std": 0.0,
+    "solve_rate": 1.0,
+    "avg_cx": 8.5,
+    "avg_time": 5.64395946264267,
+    "per_seed": [
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 8,
+        "first_solve": 1,
+        "time": 6.692209243774414
+      },
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 10,
+        "first_solve": 2,
+        "time": 6.3458545207977295
+      },
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 8,
+        "first_solve": 2,
+        "time": 5.47726845741272
+      },
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 8,
+        "first_solve": 3,
+        "time": 4.060505628585815
+      }
+    ]
+  },
+  "crit": {
+    "mean": 500.0,
+    "std": 0.0,
+    "solve_rate": 1.0,
+    "avg_cx": 8.0,
+    "avg_time": 6.038136541843414,
+    "per_seed": [
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 8,
+        "first_solve": 1,
+        "time": 6.11510157585144
+      },
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 8,
+        "first_solve": 2,
+        "time": 5.765282392501831
+      },
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 8,
+        "first_solve": 2,
+        "time": 6.5848894119262695
+      },
+      {
+        "final": 500.0,
+        "std": 0.0,
+        "cx": 8,
+        "first_solve": 2,
+        "time": 5.687272787094116
+      }
+    ]
+  }
+}
