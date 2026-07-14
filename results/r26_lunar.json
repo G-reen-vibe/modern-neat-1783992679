@@ -1,0 +1,531 @@
+{
+  "env": "LunarLander-v3",
+  "gens": 15,
+  "n_seeds": 3,
+  "pop_size": 50,
+  "tag": "r26_lunar",
+  "algos": {
+    "tide": {
+      "runs": [
+        {
+          "seed": 0,
+          "history": [
+            {
+              "gen": 1,
+              "best": 9.11740525664095,
+              "mean": -367.05499559855787,
+              "num_cells": 10,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 2,
+              "best": 30.329620252233553,
+              "mean": -377.0729012848683,
+              "num_cells": 13,
+              "avg_complexity": 32.22,
+              "max_complexity": 35,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 3,
+              "best": 30.329620252233553,
+              "mean": -262.30761785105744,
+              "num_cells": 17,
+              "avg_complexity": 32.04,
+              "max_complexity": 34,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 4,
+              "best": 30.329620252233553,
+              "mean": -216.55265510365254,
+              "num_cells": 22,
+              "avg_complexity": 32.14,
+              "max_complexity": 35,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 5,
+              "best": 43.19478226088336,
+              "mean": -167.3737035751305,
+              "num_cells": 23,
+              "avg_complexity": 32.1,
+              "max_complexity": 35,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 6,
+              "best": 43.19478226088336,
+              "mean": -135.46429440818372,
+              "num_cells": 23,
+              "avg_complexity": 32.06,
+              "max_complexity": 35,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 7,
+              "best": 43.19478226088336,
+              "mean": -117.40288823996731,
+              "num_cells": 23,
+              "avg_complexity": 32.16,
+              "max_complexity": 35,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 8,
+              "best": 43.19478226088336,
+              "mean": -108.76795868862806,
+              "num_cells": 24,
+              "avg_complexity": 32.06,
+              "max_complexity": 35,
+              "stagnation_count": 3
+            },
+            {
+              "gen": 9,
+              "best": 43.19478226088336,
+              "mean": -90.46105696541046,
+              "num_cells": 25,
+              "avg_complexity": 32.18,
+              "max_complexity": 35,
+              "stagnation_count": 4
+            },
+            {
+              "gen": 10,
+              "best": 43.19478226088336,
+              "mean": -51.10167326712242,
+              "num_cells": 25,
+              "avg_complexity": 32.46,
+              "max_complexity": 37,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 11,
+              "best": 150.45005548194757,
+              "mean": -34.80154946689997,
+              "num_cells": 25,
+              "avg_complexity": 32.16,
+              "max_complexity": 35,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 12,
+              "best": 163.45067687720586,
+              "mean": -29.385941524285602,
+              "num_cells": 25,
+              "avg_complexity": 32.0,
+              "max_complexity": 32,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 13,
+              "best": 163.45067687720586,
+              "mean": -33.876795386562264,
+              "num_cells": 25,
+              "avg_complexity": 32.06,
+              "max_complexity": 35,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 14,
+              "best": 251.06092390223822,
+              "mean": 16.279874489844975,
+              "num_cells": 25,
+              "avg_complexity": 32.06,
+              "max_complexity": 35,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 15,
+              "best": 251.06092390223822,
+              "mean": -10.826495076699471,
+              "num_cells": 25,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 1
+            }
+          ],
+          "elapsed_s": 7.343305826187134,
+          "final_best_fitness": -21.626072994805952,
+          "final_best_std": 91.84366076344972,
+          "final_best_min": -186.83929681804113,
+          "final_best_max": 253.43373742800233,
+          "final_best_evals": [
+            4.092534891393495,
+            -35.60436664342221,
+            -108.45135131381303,
+            -173.30235486488448,
+            -55.01102225795543,
+            -186.83929681804113,
+            65.28688367864359,
+            -42.632090950876915,
+            -64.27409384803346,
+            12.521207193573815,
+            -22.924064923672493,
+            44.41015327324767,
+            253.43373742800233,
+            70.4754567706511,
+            -34.455295131079396,
+            20.569009532538548,
+            15.237708520925937,
+            -50.147964029353304,
+            -64.49259782140291,
+            -80.41365258256073
+          ],
+          "final_best_complexity": 32,
+          "final_best_hidden": 0,
+          "first_solve_gen": 14,
+          "best_ever_training_score": -1000000000.0
+        },
+        {
+          "seed": 1,
+          "history": [
+            {
+              "gen": 1,
+              "best": 56.00895040947421,
+              "mean": -306.0536312465978,
+              "num_cells": 9,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 2,
+              "best": 56.00895040947421,
+              "mean": -347.17151779666483,
+              "num_cells": 13,
+              "avg_complexity": 32.04,
+              "max_complexity": 34,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 3,
+              "best": 56.00895040947421,
+              "mean": -343.34895853391157,
+              "num_cells": 19,
+              "avg_complexity": 32.04,
+              "max_complexity": 34,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 4,
+              "best": 56.00895040947421,
+              "mean": -239.13658698791158,
+              "num_cells": 21,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 3
+            },
+            {
+              "gen": 5,
+              "best": 56.00895040947421,
+              "mean": -215.9786481142844,
+              "num_cells": 23,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 4
+            },
+            {
+              "gen": 6,
+              "best": 56.00895040947421,
+              "mean": -228.00974394472246,
+              "num_cells": 24,
+              "avg_complexity": 32.3,
+              "max_complexity": 37,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 7,
+              "best": 56.00895040947421,
+              "mean": -194.21143755837718,
+              "num_cells": 24,
+              "avg_complexity": 32.04,
+              "max_complexity": 34,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 8,
+              "best": 56.00895040947421,
+              "mean": -106.5519617924772,
+              "num_cells": 24,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 9,
+              "best": 56.00895040947421,
+              "mean": -127.4447718826116,
+              "num_cells": 24,
+              "avg_complexity": 32.12,
+              "max_complexity": 34,
+              "stagnation_count": 3
+            },
+            {
+              "gen": 10,
+              "best": 56.00895040947421,
+              "mean": -158.2029419460563,
+              "num_cells": 24,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 4
+            },
+            {
+              "gen": 11,
+              "best": 56.00895040947421,
+              "mean": -92.74843821726718,
+              "num_cells": 24,
+              "avg_complexity": 32.44,
+              "max_complexity": 37,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 12,
+              "best": 56.00895040947421,
+              "mean": -82.30843036737586,
+              "num_cells": 24,
+              "avg_complexity": 32.12,
+              "max_complexity": 34,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 13,
+              "best": 56.00895040947421,
+              "mean": -36.60179909641265,
+              "num_cells": 24,
+              "avg_complexity": 32.08,
+              "max_complexity": 34,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 14,
+              "best": 56.00895040947421,
+              "mean": -72.61707503000338,
+              "num_cells": 24,
+              "avg_complexity": 32.12,
+              "max_complexity": 34,
+              "stagnation_count": 3
+            },
+            {
+              "gen": 15,
+              "best": 56.00895040947421,
+              "mean": -67.95221738663926,
+              "num_cells": 24,
+              "avg_complexity": 32.18,
+              "max_complexity": 35,
+              "stagnation_count": 4
+            }
+          ],
+          "elapsed_s": 4.950364589691162,
+          "final_best_fitness": -87.96814291914878,
+          "final_best_std": 55.896305751804256,
+          "final_best_min": -219.34362754726095,
+          "final_best_max": 23.841551809929726,
+          "final_best_evals": [
+            -53.23133539996194,
+            12.321675356016613,
+            -219.34362754726095,
+            -70.54152848845372,
+            -131.56729338067242,
+            -127.79693840949453,
+            -119.97892871863237,
+            23.841551809929726,
+            -102.36524854057933,
+            -109.11260549450986,
+            -94.7472040469936,
+            -81.28550579834493,
+            -113.32908716389977,
+            -183.24197967986885,
+            -76.30363882645645,
+            -82.06263922418495,
+            -35.49410155099228,
+            -80.04428386563714,
+            -31.631757016467034,
+            -83.44838239651155
+          ],
+          "final_best_complexity": 32,
+          "final_best_hidden": 0,
+          "first_solve_gen": null,
+          "best_ever_training_score": -1000000000.0
+        },
+        {
+          "seed": 2,
+          "history": [
+            {
+              "gen": 1,
+              "best": 41.854325539805814,
+              "mean": -235.44700738978233,
+              "num_cells": 7,
+              "avg_complexity": 32.12,
+              "max_complexity": 34,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 2,
+              "best": 41.854325539805814,
+              "mean": -324.9497954129156,
+              "num_cells": 13,
+              "avg_complexity": 32.2,
+              "max_complexity": 34,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 3,
+              "best": 41.854325539805814,
+              "mean": -327.6711334455586,
+              "num_cells": 17,
+              "avg_complexity": 32.3,
+              "max_complexity": 36,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 4,
+              "best": 41.854325539805814,
+              "mean": -280.0942205728146,
+              "num_cells": 20,
+              "avg_complexity": 32.2,
+              "max_complexity": 34,
+              "stagnation_count": 3
+            },
+            {
+              "gen": 5,
+              "best": 41.854325539805814,
+              "mean": -273.6567766598196,
+              "num_cells": 20,
+              "avg_complexity": 32.16,
+              "max_complexity": 34,
+              "stagnation_count": 4
+            },
+            {
+              "gen": 6,
+              "best": 41.854325539805814,
+              "mean": -277.057928129091,
+              "num_cells": 23,
+              "avg_complexity": 32.52,
+              "max_complexity": 39,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 7,
+              "best": 41.854325539805814,
+              "mean": -242.95608924294837,
+              "num_cells": 23,
+              "avg_complexity": 32.32,
+              "max_complexity": 34,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 8,
+              "best": 41.854325539805814,
+              "mean": -197.79881242523737,
+              "num_cells": 23,
+              "avg_complexity": 32.36,
+              "max_complexity": 34,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 9,
+              "best": 41.854325539805814,
+              "mean": -190.8827095153704,
+              "num_cells": 25,
+              "avg_complexity": 32.58,
+              "max_complexity": 35,
+              "stagnation_count": 3
+            },
+            {
+              "gen": 10,
+              "best": 49.534801667111424,
+              "mean": -170.05393662747395,
+              "num_cells": 25,
+              "avg_complexity": 32.32,
+              "max_complexity": 34,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 11,
+              "best": 49.534801667111424,
+              "mean": -143.7290474955097,
+              "num_cells": 25,
+              "avg_complexity": 32.42,
+              "max_complexity": 35,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 12,
+              "best": 72.54281482088919,
+              "mean": -103.05102253399329,
+              "num_cells": 25,
+              "avg_complexity": 32.44,
+              "max_complexity": 35,
+              "stagnation_count": 0
+            },
+            {
+              "gen": 13,
+              "best": 72.54281482088919,
+              "mean": -83.40596176975986,
+              "num_cells": 25,
+              "avg_complexity": 32.8,
+              "max_complexity": 36,
+              "stagnation_count": 1
+            },
+            {
+              "gen": 14,
+              "best": 72.54281482088919,
+              "mean": -57.81565008708543,
+              "num_cells": 25,
+              "avg_complexity": 32.76,
+              "max_complexity": 37,
+              "stagnation_count": 2
+            },
+            {
+              "gen": 15,
+              "best": 72.54281482088919,
+              "mean": -71.71437764357408,
+              "num_cells": 25,
+              "avg_complexity": 32.58,
+              "max_complexity": 36,
+              "stagnation_count": 3
+            }
+          ],
+          "elapsed_s": 4.902889251708984,
+          "final_best_fitness": -116.22949173668674,
+          "final_best_std": 62.53754316010032,
+          "final_best_min": -212.67138584665025,
+          "final_best_max": 27.244240918923225,
+          "final_best_evals": [
+            -128.6114664851077,
+            12.520660012228717,
+            -212.67138584665025,
+            -122.83347125192714,
+            -132.61244398389158,
+            -136.39179533440645,
+            9.581157577842973,
+            27.244240918923225,
+            -151.3350579195256,
+            -140.24427769453996,
+            -135.91884701048957,
+            -171.16924372318618,
+            -182.09338449792864,
+            -176.16683909906698,
+            -121.5809043070496,
+            -110.63295781037527,
+            -111.80657836959065,
+            -84.43959130811663,
+            -111.02888515715506,
+            -144.39876344372195
+          ],
+          "final_best_complexity": 32,
+          "final_best_hidden": 0,
+          "first_solve_gen": null,
+          "best_ever_training_score": -1000000000.0
+        }
+      ],
+      "mean_final": -75.2745692168805,
+      "std_final": 39.65095055114567,
+      "mean_time": 5.732186555862427,
+      "mean_complexity": 32.0,
+      "solve_rate": 0.3333333333333333
+    }
+  }
+}

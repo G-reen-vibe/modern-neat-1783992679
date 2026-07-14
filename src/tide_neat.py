@@ -46,8 +46,8 @@ from sklearn.decomposition import PCA
 @dataclass
 class TIDEConfig:
     # Population (cells * genomes_per_cell = total pop)
-    grid_n_bins: int = 6  # bins per dim (6x6 = 36 cells)
-    genomes_per_cell: int = 3  # max genomes kept per cell
+    grid_n_bins: int = 8  # bins per dim (8x8 = 64 cells)
+    genomes_per_cell: int = 2  # max genomes kept per cell
     # Mutation
     p_add_node: float = 0.05
     p_add_conn: float = 0.10
@@ -63,6 +63,7 @@ class TIDEConfig:
     traj_max_steps: int = 150
     # Selection
     elitism_per_cell: int = 1  # elites kept per cell
+    global_elitism: int = 5  # top-N genomes globally always carried over
     # Robustness
     use_robust_fitness: bool = True  # 0.5*mean + 0.5*min
     # PCA descriptor
@@ -99,6 +100,9 @@ class TIDENEAT:
         # Stagnation
         self._best_ever_fitness: float = -1e9
         self._stagnation_count: int = 0
+        # Grid edges (computed lazily on first step)
+        self._grid_edges = None
+        self._current_probe = np.array([])
         # Initialize population
         self._init_pop(birth_gen)
 
@@ -297,29 +301,46 @@ class TIDENEAT:
         finally:
             env.close()
         # 3) PCA project trajectory signatures to 2D for grid placement
-        sigs_arr = np.array(all_sigs)
-        if len(sigs_arr) >= 4 and sigs_arr.shape[1] > 2:
+        # We use BOTH the current pop AND any existing grid genomes to fit PCA,
+        # so the projection is stable across generations.
+        all_existing_sigs = []
+        for cell_genomes in self.grid.values():
+            for g in cell_genomes:
+                if hasattr(g, '_last_sig'):
+                    all_existing_sigs.append(g._last_sig)
+        all_existing_sigs.extend(all_sigs)
+        sigs_for_pca = np.array(all_existing_sigs) if all_existing_sigs else np.array(all_sigs)
+        if len(sigs_for_pca) >= 4 and sigs_for_pca.shape[1] > 2:
             try:
-                # Add small noise to avoid degenerate PCA
-                sigs_noisy = sigs_arr + np.random.randn(*sigs_arr.shape) * 1e-6
-                self.pca = PCA(n_components=min(self.cfg.pca_components, sigs_arr.shape[1]))
-                projected = self.pca.fit_transform(sigs_noisy)
+                sigs_noisy = sigs_for_pca + np.random.randn(*sigs_for_pca.shape) * 1e-6
+                self.pca = PCA(n_components=min(self.cfg.pca_components, sigs_for_pca.shape[1]))
+                self.pca.fit(sigs_noisy)
+                projected = self.pca.transform(np.array(all_sigs))
             except Exception:
-                projected = sigs_arr[:, :2] if sigs_arr.shape[1] >= 2 else sigs_arr
+                projected = np.array(all_sigs)[:, :2] if np.array(all_sigs).shape[1] >= 2 else np.zeros((len(all_sigs), 2))
         else:
-            projected = sigs_arr[:, :2] if sigs_arr.shape[1] >= 2 else np.zeros((len(sigs_arr), 2))
-        # 4) Place genomes in grid: each cell keeps fittest genomes_per_cell
+            projected = np.array(all_sigs)[:, :2] if np.array(all_sigs).shape[1] >= 2 else np.zeros((len(all_sigs), 2))
+        # Store signature on each genome for future PCA fitting
+        for g, sig in zip(self.pop, all_sigs):
+            g._last_sig = sig
+        # 4) Compute bin edges from EXISTING grid (if any) for stability,
+        # otherwise from current projections
         n_bins = self.cfg.grid_n_bins
-        # Compute bin edges from current projected values
-        if len(projected) > 0:
-            # Use percentile-based binning for robustness
-            edges = []
-            for d in range(projected.shape[1]):
-                lo = float(np.percentile(projected[:, d], 2))
-                hi = float(np.percentile(projected[:, d], 98))
-                if hi <= lo:
-                    hi = lo + 1.0
-                edges.append(np.linspace(lo, hi, n_bins + 1))
+        if self.grid and hasattr(self, '_grid_edges') and self._grid_edges is not None:
+            edges = self._grid_edges
+        else:
+            if len(projected) > 0:
+                edges = []
+                for d in range(projected.shape[1]):
+                    lo = float(np.percentile(projected[:, d], 2))
+                    hi = float(np.percentile(projected[:, d], 98))
+                    if hi <= lo:
+                        hi = lo + 1.0
+                    edges.append(np.linspace(lo, hi, n_bins + 1))
+            else:
+                edges = [np.linspace(-1, 1, n_bins + 1) for _ in range(2)]
+            self._grid_edges = edges
+        # 5) Place genomes in grid: each cell keeps fittest genomes_per_cell
         new_grid: Dict[Tuple[int, int], List[Genome]] = {}
         for i, g in enumerate(self.pop):
             bin_x = min(n_bins - 1, max(0, int(np.searchsorted(edges[0], projected[i, 0]) - 1)))
@@ -335,30 +356,45 @@ class TIDENEAT:
         # Merge with previous grid: keep fittest per cell across gens
         for cell, genomes in new_grid.items():
             if cell in self.grid:
-                # Combine and re-sort
                 combined = self.grid[cell] + genomes
                 combined.sort(key=lambda g: g.fitness, reverse=True)
                 self.grid[cell] = combined[:self.cfg.genomes_per_cell]
             else:
                 self.grid[cell] = genomes
-        # 5) Stagnation check
+        # Periodically update edges (every 5 gens) to adapt to behavioral drift
+        if self.gen % 5 == 4:
+            if len(projected) > 0:
+                edges = []
+                for d in range(projected.shape[1]):
+                    lo = float(np.percentile(projected[:, d], 2))
+                    hi = float(np.percentile(projected[:, d], 98))
+                    if hi <= lo:
+                        hi = lo + 1.0
+                    edges.append(np.linspace(lo, hi, n_bins + 1))
+                self._grid_edges = edges
+        # 6) Stagnation check
         current_best = max((g.fitness for cell in self.grid.values() for g in cell), default=-1e9)
         if current_best > self._best_ever_fitness + 1e-6:
             self._best_ever_fitness = current_best
             self._stagnation_count = 0
         else:
             self._stagnation_count += 1
-        # 6) Build next generation: pick parents from cells, mutate, fill pop
+        # 7) Build next generation: pick parents from cells, mutate, fill pop
         new_pop: List[Genome] = []
-        # Elitism: keep top elites from each cell
+        # Global elitism: top N genomes across all cells, always carried over
+        all_grid_g = sorted([g for cell in self.grid.values() for g in cell],
+                            key=lambda g: g.fitness, reverse=True)
+        for g in all_grid_g[:self.cfg.global_elitism]:
+            new_pop.append(g.copy())
+        # Per-cell elitism
         for cell, genomes in self.grid.items():
             for i in range(min(self.cfg.elitism_per_cell, len(genomes))):
-                new_pop.append(genomes[i].copy())
+                if genomes[i] not in all_grid_g[:self.cfg.global_elitism]:
+                    new_pop.append(genomes[i].copy())
         # If stagnating, replace some genomes with heavily-mutated top performers
         if (self.cfg.use_stagnation_injection
                 and self._stagnation_count >= self.cfg.stagnation_patience
                 and self.gen > 3):
-            # Get all genomes sorted by fitness
             all_g = sorted([g for cell in self.grid.values() for g in cell],
                            key=lambda g: g.fitness, reverse=True)
             n_inject = max(1, int(self.cfg.stagnation_inject_frac * len(new_pop)))
@@ -392,9 +428,7 @@ class TIDENEAT:
             child = parent.copy()
             self._mutate(child)
             new_pop.append(child)
-        # Trim
         new_pop = new_pop[:self.pop_size]
-        # If underflow (no cells), fill with random initial genomes
         while len(new_pop) < self.pop_size:
             g = Genome(self.num_inputs, self.num_outputs, self.gen)
             for i in range(self.num_inputs):
