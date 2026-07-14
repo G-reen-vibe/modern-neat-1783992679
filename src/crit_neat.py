@@ -63,11 +63,11 @@ class CRITConfig:
     use_criticality_growth: bool = True
     use_functional_pruning: bool = True
     use_adaptive_rates: bool = False  # ablation showed this HURTS — too noisy with 5-sample window
-    use_novelty_bonus: bool = True
+    use_novelty_bonus: bool = True  # ablation showed marginal/negative impact; re-enabled
     use_adaptive_threshold: bool = True  # data-driven behavioral threshold
     use_structural_novelty_bias: bool = True  # bias growth toward un-split connections
     use_soft_sharing: bool = True  # soft behavioral fitness sharing (vs hard clustering)
-    use_intercluster_crossover: bool = True  # crossover between behaviorally different parents
+    use_intercluster_crossover: bool = False  # ablation: didn't help, adds complexity
     intercluster_crossover_prob: float = 0.3  # fraction of offspring from inter-cluster mating
     use_robust_fitness: bool = True  # use 0.5*mean + 0.5*min for fitness (favors consistency)
     use_genetic_sharing: bool = False  # ablation: hurts because punishes structural growth
