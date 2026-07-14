@@ -77,6 +77,8 @@ class CRITConfig:
     stagnation_inject_frac: float = 0.2  # fraction of pop to replace
     use_elite_archive: bool = True  # persistent archive of best-per-cell genomes
     archive_grid_bins: int = 5  # bins per dim for archive grid (5x5 = 25 cells)
+    archive_as_parents: bool = True  # use archive genomes as additional parents
+    archive_parent_frac: float = 0.15  # fraction of offspring from archive parents
     # Behavioral speciation
     n_probe_states: int = 50
     behavioral_threshold: float = 0.5  # used only if use_adaptive_threshold=False
@@ -808,6 +810,23 @@ class CRITNEAT:
                 new_rates.append(r)
                 new_windows.append(w)
                 new_parent_fits.append(parent.fitness)  # child's fitness will be compared to this
+        # Archive-as-parents: spawn some offspring from archive genomes.
+        # This re-introduces historically-good behavioral strategies into the
+        # current population, allowing them to be recombined with current best.
+        if (self.cfg.use_elite_archive and self.cfg.archive_as_parents
+                and self.elite_archive and len(new_pop) < self.cfg.pop_size):
+            n_archive_parents = max(1, int(self.cfg.archive_parent_frac * self.cfg.pop_size))
+            archive_genomes = [g for g, _ in self.elite_archive.values()]
+            for _ in range(n_archive_parents):
+                if len(new_pop) >= self.cfg.pop_size or not archive_genomes:
+                    break
+                parent = random.choice(archive_genomes)
+                child = parent.copy()
+                self._mutate(child, self.cfg.init_mut_rate)
+                new_pop.append(child)
+                new_rates.append(self.cfg.init_mut_rate)
+                new_windows.append([random.random() < 0.2 for _ in range(5)])
+                new_parent_fits.append(parent.fitness if hasattr(parent, 'fitness') else 0.0)
         # Fill if underflow
         while len(new_pop) < self.cfg.pop_size:
             i = random.choice(order[:max(1, len(order)//2)])
