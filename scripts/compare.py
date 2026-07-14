@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.baseline_neat import NEAT, NEATConfig
 from src.crit_neat import CRITNEAT, CRITConfig
+from src.tide_neat import TIDENEAT, TIDEConfig
 from src.evaluator import eval_genome, get_env_info
 import gymnasium as gym
 
@@ -56,6 +57,9 @@ def build_algo(algo: str, env_name: str, cfg_kwargs: dict, seed: int):
     elif algo == 'crit':
         cfg = CRITConfig(**cfg_kwargs)
         return CRITNEAT(n_in, n_out, cfg, discrete_actions=discrete, birth_gen=0)
+    elif algo == 'tide':
+        cfg = TIDEConfig(**cfg_kwargs)
+        return TIDENEAT(n_in, n_out, cfg, discrete_actions=discrete, birth_gen=0)
     raise ValueError(f"Unknown algo: {algo}")
 
 
@@ -81,15 +85,21 @@ def run_one(algo: str, env_name: str, gens: int, eval_seeds_per_gen: int,
                         best_ever_score = ps
                         best_ever_genome = g.copy()
         if verbose and (gen % 10 == 0 or gen == gens - 1):
+            n_species = stats.get('num_species', stats.get('num_cells', 0))
             print(f"    [seed {seed}] gen {gen}: best={stats['best']:.1f} "
-                  f"mean={stats['mean']:.1f} sp={stats['num_species']} "
+                  f"mean={stats['mean']:.1f} sp={n_species} "
                   f"cx={stats['avg_complexity']:.1f}")
     elapsed = time.time() - t0
     # Final selection: combine best-ever + top-K by current fitness
     candidates = []
     if best_ever_genome is not None:
         candidates.append(best_ever_genome)
-    candidates.extend(sorted(algo_inst.pop, key=lambda g: g.fitness, reverse=True)[:10])
+    # For TIDE-NEAT, use grid genomes; otherwise use pop
+    if hasattr(algo_inst, 'grid') and algo_inst.grid:
+        grid_g = [g for cell in algo_inst.grid.values() for g in cell]
+        candidates.extend(sorted(grid_g, key=lambda g: g.fitness, reverse=True)[:10])
+    else:
+        candidates.extend(sorted(algo_inst.pop, key=lambda g: g.fitness, reverse=True)[:10])
     # Deduplicate by identity (best_ever may already be in pop)
     seen = set()
     unique_candidates = []
@@ -141,7 +151,18 @@ def run_comparison(env_name: str, gens: int, n_seeds: int, out_dir: str,
     for algo in algos:
         print(f"\n=== {algo.upper()} on {env_name} ({n_seeds} seeds, {gens} gens) ===")
         runs = []
-        cfg = {'pop_size': pop_size}
+        if algo == 'tide':
+            # TIDE-NEAT: pop_size is determined by grid config
+            # We pick grid params to approximate the desired pop_size
+            # 6x6 grid * 3 per cell = 108; 5x5*2 = 50; 6x6*2 = 72
+            if pop_size <= 50:
+                cfg = {'grid_n_bins': 5, 'genomes_per_cell': 2}  # 50
+            elif pop_size <= 80:
+                cfg = {'grid_n_bins': 6, 'genomes_per_cell': 2}  # 72
+            else:
+                cfg = {'grid_n_bins': 6, 'genomes_per_cell': 3}  # 108
+        else:
+            cfg = {'pop_size': pop_size}
         for s in range(n_seeds):
             print(f"  seed {s}...")
             r = run_one(algo, env_name, gens, eval_seeds_per_gen, cfg, s, verbose=True)
@@ -178,7 +199,7 @@ if __name__ == '__main__':
     p.add_argument('--pop', type=int, default=60)
     p.add_argument('--out-dir', default='results')
     p.add_argument('--tag', default=None)
-    p.add_argument('--algos', nargs='+', default=['neat', 'crit'])
+    p.add_argument('--algos', nargs='+', default=['neat', 'crit', 'tide'])
     p.add_argument('--eval-seeds-per-gen', type=int, default=2)
     args = p.parse_args()
     run_comparison(args.env, args.gens, args.seeds, args.out_dir,
